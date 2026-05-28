@@ -23,6 +23,17 @@ Do not use for:
 
 Before writing any durable rule, collect source evidence and identify its scope: global, project, tool, or one-off.
 
+## Adapter Rule
+
+Use roles, not one hardcoded model:
+
+- `history-scout`: fastest read-only coding worker for shard scans.
+- `docs-scout`: cheap docs/search worker for documentation and policy checks.
+- `main-synthesizer`: strongest available main agent for evidence integration and durable rule decisions.
+- `verifier`: local shell, test runner, or CI worker for install and package checks.
+
+For Codex this may map `history-scout` to `code_scout` / `GPT-5.3-Codex-Spark`. For Claude Code this may map to a `code-scout` or fast Sonnet-class worker, with Haiku-class agents for docs. For other coding agents, use the closest read-only workers or run shard prompts sequentially. See `references/agent-adapters.md`.
+
 The central pattern is:
 
 1. Turn conversation history into compact evidence cards.
@@ -45,7 +56,7 @@ Do not rely on manual keyword search alone. The value of this skill is broad cov
    - Avoid exposing secrets. Redact API keys, tokens, credentials, and private paths if the output may leave the machine.
 
 3. Dispatch subagents.
-   - Use cheap models for broad scanning: code-scout style agents for evidence gathering, docs-researcher style agents for docs and policy lookup.
+   - Use the adapter roles above; do not assume Codex-only model names.
    - Give each subagent one shard and one narrow rubric.
    - Ask for concrete evidence: session id, card id, short quote or paraphrase, observed failure, proposed rule.
    - Do not delegate final synthesis, risky writes, or decisions that require full conversation context.
@@ -93,7 +104,8 @@ Install for one agent family:
 ```bash
 python3 scripts/install_skill.py --target codex --force
 python3 scripts/install_skill.py --target claude --force
-python3 scripts/install_skill.py --target agents --force
+python3 scripts/install_skill.py --target generic --force
+python3 scripts/install_skill.py --target custom --custom-dir ~/.my-agent/skills/self-improvement --force
 ```
 
 `--force` replaces the existing installed skill directory. Use `--dry-run` first when installing into global agent locations.
@@ -101,4 +113,5 @@ python3 scripts/install_skill.py --target agents --force
 ## References
 
 - `references/audit-method.md`: detailed audit method and subagent prompt templates.
+- `references/agent-adapters.md`: role mappings for Codex, Claude Code, and generic coding agents.
 - `references/operating-rules.md`: rule taxonomy and examples from real Codex/Claude self-improvement audits.

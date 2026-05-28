@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install the self-improvement skill for Codex, Claude, or generic agents."""
+"""Install the self-improvement skill for local coding-agent runtimes."""
 
 from __future__ import print_function
 
@@ -15,6 +15,10 @@ TARGETS = {
     "claude": Path("~/.claude/skills") / SKILL_NAME,
     "agents": Path("~/.agents/skills") / SKILL_NAME,
 }
+ALIASES = {
+    "agent": "agents",
+    "generic": "agents",
+}
 EXCLUDE_DIRS = {".git", "__pycache__", ".pytest_cache", "tests", "conversation-audit"}
 
 
@@ -22,9 +26,14 @@ def source_root():
     return Path(__file__).resolve().parents[1]
 
 
-def selected_targets(target):
+def selected_targets(target, custom_dir):
+    target = ALIASES.get(target, target)
     if target == "all":
         return TARGETS
+    if target == "custom":
+        if not custom_dir:
+            raise SystemExit("--target custom requires --custom-dir")
+        return {"custom": Path(custom_dir)}
     return {target: TARGETS[target]}
 
 
@@ -58,13 +67,18 @@ def install_one(src, target_path, dry_run, force):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--target", choices=["all", "codex", "claude", "agents"], default="all")
+    parser.add_argument(
+        "--target",
+        choices=["all", "codex", "claude", "agents", "agent", "generic", "custom"],
+        default="all",
+    )
+    parser.add_argument("--custom-dir", help="Install into an explicit skill directory for another runtime.")
     parser.add_argument("--dry-run", action="store_true", help="Print target directories without copying.")
     parser.add_argument("--force", action="store_true", help="Replace an existing installed copy.")
     args = parser.parse_args()
 
     src = source_root()
-    for _, target_path in selected_targets(args.target).items():
+    for _, target_path in selected_targets(args.target, args.custom_dir).items():
         install_one(src, target_path, args.dry_run, args.force)
 
 

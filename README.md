@@ -10,14 +10,15 @@
 
 <p align="center">
   <a href="https://developers.openai.com/codex/skills"><img src="https://img.shields.io/badge/Codex-Skill-111827?style=for-the-badge&logo=openai&logoColor=white" alt="Codex Skill"></a>
-  <img src="https://img.shields.io/badge/Subagents-GPT--5.3--Codex--Spark-0f766e?style=for-the-badge" alt="GPT-5.3-Codex-Spark subagents">
+  <img src="https://img.shields.io/badge/Claude-Code-6b46c1?style=for-the-badge" alt="Claude Code compatible">
+  <img src="https://img.shields.io/badge/Scouts-Role--Based-0f766e?style=for-the-badge" alt="Role-based scout agents">
   <img src="https://img.shields.io/badge/Install-Copy--Paste--Prompt-f59e0b?style=for-the-badge" alt="Copy-paste install">
-  <img src="https://img.shields.io/badge/Tests-7%20Passing-2563eb?style=for-the-badge" alt="Tests passing">
+  <img src="https://img.shields.io/badge/Tests-Passing-2563eb?style=for-the-badge" alt="Tests passing">
 </p>
 
 Self-Improvement is a portable agent skill for turning real conversation history into better operating rules. It is designed for Codex, Claude Code, and generic agents that support filesystem-installed skills.
 
-The core advantage is coverage: shard conversation history into compact cards, let fast `GPT-5.3-Codex-Spark` scout subagents scan many shards in parallel, then spend the main agent's stronger reasoning on synthesis, rules, and safe installation.
+The core advantage is coverage: shard conversation history into compact cards, let fast read-only scout subagents scan many shards in parallel, then spend the main agent's stronger reasoning on synthesis, rules, and safe installation.
 
 ## Quick Start
 
@@ -40,9 +41,22 @@ $skill-installer install https://github.com/Chenwei-1999/agent-self-improvement
 Most agent "self-improvement" drifts into vibes or hand-picked examples. This package keeps it grounded:
 
 - Uses actual Codex and Claude conversation history.
-- Dispatches `GPT-5.3-Codex-Spark` code-scout subagents for fast, low-cost coverage across many shards.
+- Dispatches role-based scout subagents for fast, low-cost coverage across many shards.
 - Preserves the main agent as the owner of final judgment and config writes.
 - Produces scoped rules that can be installed into `AGENTS.md`, `CLAUDE.md`, memories, or a reusable skill.
+
+## Agent Adapters
+
+The skill does not require one specific model. It uses roles and maps them to whatever your coding agent supports.
+
+| Role | Job | Codex adapter | Claude Code adapter | Generic coding agents |
+|------|-----|---------------|---------------------|-----------------------|
+| `history-scout` | Scan conversation-card shards | `code_scout` / `GPT-5.3-Codex-Spark` | `code-scout` or a fast Sonnet-class subagent | fastest read-only coding worker |
+| `docs-scout` | Check docs, policy, install conventions | `docs_researcher` / mini model | Haiku-class docs researcher | cheap docs/search worker |
+| `main-synthesizer` | Merge evidence and decide rules | current main agent | Opus/Sonnet-class main agent | strongest available coding agent |
+| `verifier` | Run tests and install dry-runs | local shell or test agent | test-runner subagent or local shell | local shell / CI worker |
+
+If a runtime has no subagents, run the same shard prompts sequentially. The quality goal is evidence coverage; the optimization is parallelism.
 
 ## How It Works
 
@@ -55,7 +69,7 @@ compact cards + shards
   card id, user correction, evidence, candidate lesson
         |
         v
-GPT-5.3-Codex-Spark scout subagents
+history-scout subagents
   shard A -> repeated failures
   shard B -> successful patterns
   shard C -> missing rules
@@ -84,18 +98,20 @@ Install only one target:
 ```bash
 python3 scripts/install_skill.py --target codex --force
 python3 scripts/install_skill.py --target claude --force
-python3 scripts/install_skill.py --target agents --force
+python3 scripts/install_skill.py --target generic --force
+python3 scripts/install_skill.py --target custom --custom-dir ~/.my-agent/skills/self-improvement --force
 ```
 
 Targets:
 
 - Codex: `~/.codex/skills/self-improvement`
 - Claude: `~/.claude/skills/self-improvement`
-- Generic agents: `~/.agents/skills/self-improvement`
+- Generic local agents: `~/.agents/skills/self-improvement`
+- Custom runtimes: any directory passed with `--custom-dir`
 
 `--force` replaces the existing installed directory. Run the dry-run command first when installing into global agent locations.
 
-Generic agent support assumes the runtime discovers skills from `~/.agents/skills/...` or lets you point it at that folder. Codex and Claude targets follow their local skill-directory conventions.
+Generic agent support assumes the runtime discovers skills from `~/.agents/skills/...` or lets you point it at that folder. For Cursor, Continue, Aider, OpenHands, or another runtime with its own convention, use `--target custom --custom-dir <skill-dir>`.
 
 </details>
 
@@ -108,6 +124,12 @@ python3 scripts/extract_conversation_cards.py --out conversation-audit/cards
 ```
 
 By default this reads `~/.codex/sessions` and `~/.claude/projects`. Override them with `--codex-root` and `--claude-root` when using exported history or a different machine layout.
+
+For other coding agents, export transcripts to a folder and pass it as `--generic-root`:
+
+```bash
+python3 scripts/extract_conversation_cards.py --generic-root /path/to/transcripts --out conversation-audit/cards
+```
 
 Extraction writes Markdown shard files plus `manifest.json`, which records roots, counts, and shard paths for later verification.
 
@@ -145,6 +167,7 @@ self-improvement/
   assets/banner.png
   assets/self-improvement-hero.png
   references/audit-method.md
+  references/agent-adapters.md
   references/operating-rules.md
   scripts/extract_conversation_cards.py
   scripts/install_skill.py
@@ -153,7 +176,7 @@ self-improvement/
 
 ## Design Notes
 
-The skill intentionally separates high-volume scanning from high-stakes synthesis. Subagents can cheaply read and classify lots of history; the main agent still owns the final rules, user-facing explanation, and any writes to global config.
+The skill intentionally separates high-volume scanning from high-stakes synthesis. Role-based scout agents can cheaply read and classify lots of history; the main agent still owns the final rules, user-facing explanation, and any writes to global config.
 
 This keeps cost low without lowering quality.
 

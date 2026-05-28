@@ -1,4 +1,4 @@
 interface:
   display_name: "Self Improvement"
-  short_description: "Mine conversation history for durable agent rules"
-  default_prompt: "Use $self-improvement to audit conversation history with subagents and propose evidence-backed operating rules."
+  short_description: "Role-based conversation history audits for durable agent rules"
+  default_prompt: "Use $self-improvement to audit conversation history with role-based scouts and propose evidence-backed operating rules."

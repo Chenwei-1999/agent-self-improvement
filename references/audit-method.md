@@ -26,7 +26,7 @@ Each card should be small enough for cheap agents to scan quickly. A good card c
 
 Use `scripts/extract_conversation_cards.py` for local Codex and Claude histories. It writes Markdown shard files and a JSON manifest.
 
-## Step 2: Shard for Subagents
+## Step 2: Shard for Agent Roles
 
 Shard by source and approximate size. Prefer many small shards over one huge shard. The main agent should dispatch independent read-only jobs such as:
 
@@ -41,6 +41,8 @@ explicit user corrections, and durable behavior rules. Return:
 ```
 
 Subagents should not write config files. They gather evidence and propose rules.
+
+Use `references/agent-adapters.md` to map these roles onto Codex, Claude Code, or another coding agent. Codex may use `GPT-5.3-Codex-Spark`; Claude Code may use a Sonnet-class code scout; generic agents can run the same prompt in separate lightweight sessions or sequentially.
 
 ## Step 3: Synthesize
 
@@ -81,4 +83,3 @@ Verification can be lightweight:
 - Confirm installers target the expected directories.
 
 Do not call the improvement done until the new behavior has at least one concrete verification path.
-

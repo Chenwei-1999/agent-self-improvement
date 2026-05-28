@@ -1,6 +1,7 @@
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -18,6 +19,7 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
             "assets/banner.png",
             "assets/self-improvement-hero.png",
             "references/audit-method.md",
+            "references/agent-adapters.md",
             "references/operating-rules.md",
             "scripts/extract_conversation_cards.py",
             "scripts/install_skill.py",
@@ -33,6 +35,8 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
         self.assertIn("Install this skill: https://github.com/Chenwei-1999/agent-self-improvement", text)
         self.assertIn("$skill-installer install https://github.com/Chenwei-1999/agent-self-improvement", text)
         self.assertIn("Activation Contract", text)
+        self.assertIn("Adapter Rule", text)
+        self.assertIn("references/agent-adapters.md", text)
         self.assertIn("subagents", text.lower())
         self.assertLess(len(text.split()), 1200)
 
@@ -47,7 +51,11 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
         text = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("assets/banner.png", text)
         self.assertIn("subagent", text.lower())
+        self.assertIn("role-based", text)
+        self.assertIn("Claude Code", text)
         self.assertIn("GPT-5.3-Codex-Spark", text)
+        self.assertIn("Sonnet-class", text)
+        self.assertIn("Generic coding agents", text)
         self.assertIn("Give this GitHub link to your coding agent", text)
         self.assertIn("Install this skill: https://github.com/Chenwei-1999/agent-self-improvement", text)
         self.assertIn("$skill-installer install https://github.com/Chenwei-1999/agent-self-improvement", text)
@@ -60,8 +68,18 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
         text = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("conversation history", text)
         self.assertIn("compact cards + shards", text)
-        self.assertIn("GPT-5.3-Codex-Spark scout subagents", text)
+        self.assertIn("history-scout subagents", text)
         self.assertIn("evidence ledger -> durable rules", text)
+
+    def test_agent_adapters_cover_major_coding_agents(self):
+        text = (ROOT / "references" / "agent-adapters.md").read_text(encoding="utf-8")
+        self.assertIn("Codex", text)
+        self.assertIn("GPT-5.3-Codex-Spark", text)
+        self.assertIn("Claude Code", text)
+        self.assertIn("Sonnet-class", text)
+        self.assertIn("Haiku-class", text)
+        self.assertIn("Cursor / Continue / Aider / OpenHands", text)
+        self.assertIn("history-scout", text)
 
     def test_copy_paste_install_prompt_is_actionable(self):
         text = (ROOT / "INSTALL_PROMPT.md").read_text(encoding="utf-8")
@@ -84,6 +102,35 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
         self.assertIn(".claude/skills/self-improvement", result.stdout)
         self.assertIn(".agents/skills/self-improvement", result.stdout)
 
+    def test_installer_supports_generic_alias_and_custom_runtime(self):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "install_skill.py"), "--target", "generic", "--dry-run"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(".agents/skills/self-improvement", result.stdout)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            custom_dir = str(Path(tmpdir) / "runtime-skills" / "self-improvement")
+            custom = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts" / "install_skill.py"),
+                    "--target", "custom",
+                    "--custom-dir", custom_dir,
+                    "--dry-run",
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                check=False,
+            )
+            self.assertEqual(custom.returncode, 0, custom.stderr)
+            self.assertIn(custom_dir, custom.stdout)
+
     def test_extract_conversation_cards_has_help(self):
         result = subprocess.run(
             [sys.executable, str(ROOT / "scripts" / "extract_conversation_cards.py"), "--help"],
@@ -95,6 +142,34 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--codex-root", result.stdout)
         self.assertIn("--claude-root", result.stdout)
+        self.assertIn("--generic-root", result.stdout)
+
+    def test_extract_conversation_cards_accepts_generic_exports(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            root = base / "generic"
+            out = base / "cards"
+            sample = root / "sample.jsonl"
+            root.mkdir(parents=True)
+            sample.write_text('{"role":"user","content":"Please audit this agent transcript."}\n', encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts" / "extract_conversation_cards.py"),
+                    "--codex-root", str(base / "empty-codex"),
+                    "--claude-root", str(base / "empty-claude"),
+                    "--generic-root", str(root),
+                    "--out", str(out),
+                    "--generic-shards", "1",
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("1 generic cards", result.stdout)
+            self.assertTrue((out / "generic" / "shard-01.md").exists())
 
 
 if __name__ == "__main__":

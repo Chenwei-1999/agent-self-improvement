@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract compact conversation cards from local Codex and Claude histories."""
+"""Extract compact conversation cards from local agent histories."""
 
 from __future__ import print_function
 
@@ -131,6 +131,52 @@ def card_from_claude(path, line_number, payload, max_chars):
     }
 
 
+def card_from_generic_jsonl(path, line_number, payload, max_chars):
+    role = payload.get("role") or payload.get("speaker") or payload.get("author")
+    item_type = payload.get("type") or payload.get("event") or "message"
+    text = ""
+    for key in ("message", "content", "text", "prompt", "response", "output"):
+        if key in payload:
+            text = extract_text_from_message(payload.get(key))
+            if text:
+                break
+    if not text:
+        return None
+    return {
+        "id": stable_id("generic", path, line_number),
+        "source": "generic",
+        "path": str(path),
+        "line": line_number,
+        "type": compact(item_type, 80),
+        "role": compact(role or "unknown", 40),
+        "text": compact(text, max_chars),
+    }
+
+
+def cards_from_text_file(path, max_chars):
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return []
+    text = " ".join(text.replace("\x00", " ").split())
+    if not text:
+        return []
+    chunk_size = max(max_chars, 500)
+    cards = []
+    for index, start in enumerate(range(0, len(text), chunk_size), 1):
+        chunk = text[start:start + chunk_size]
+        cards.append({
+            "id": stable_id("generic", path, index),
+            "source": "generic",
+            "path": str(path),
+            "line": index,
+            "type": "text-export",
+            "role": "unknown",
+            "text": compact(chunk, max_chars),
+        })
+    return cards
+
+
 def collect_cards(root, source, max_chars):
     root = Path(root).expanduser()
     if not root.exists():
@@ -144,6 +190,27 @@ def collect_cards(root, source, max_chars):
                 card = card_from_claude(path, line_number, payload, max_chars)
             if card:
                 cards.append(card)
+    return cards
+
+
+def collect_generic_cards(root, max_chars):
+    if not root:
+        return []
+    root = Path(root).expanduser()
+    if not root.exists():
+        return []
+    cards = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        suffix = path.suffix.lower()
+        if suffix == ".jsonl":
+            for line_number, payload in read_jsonl(path):
+                card = card_from_generic_jsonl(path, line_number, payload, max_chars)
+                if card:
+                    cards.append(card)
+        elif suffix in (".md", ".txt"):
+            cards.extend(cards_from_text_file(path, max_chars))
     return cards
 
 
@@ -176,9 +243,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--codex-root", default="~/.codex/sessions", help="Root containing Codex JSONL history.")
     parser.add_argument("--claude-root", default="~/.claude/projects", help="Root containing Claude JSONL history.")
+    parser.add_argument("--generic-root", default=None, help="Optional root containing exported JSONL, Markdown, or text transcripts from any coding agent.")
     parser.add_argument("--out", default="conversation-audit/cards", help="Output directory for shard files.")
     parser.add_argument("--codex-shards", type=int, default=16, help="Number of Codex shard files.")
     parser.add_argument("--claude-shards", type=int, default=10, help="Number of Claude shard files.")
+    parser.add_argument("--generic-shards", type=int, default=8, help="Number of generic transcript shard files.")
     parser.add_argument("--max-chars", type=int, default=700, help="Maximum text length per card.")
     args = parser.parse_args()
 
@@ -187,17 +256,22 @@ def main():
 
     codex_cards = collect_cards(args.codex_root, "codex", args.max_chars)
     claude_cards = collect_cards(args.claude_root, "claude", args.max_chars)
+    generic_cards = collect_generic_cards(args.generic_root, args.max_chars)
 
     shard_paths = []
     shard_paths.extend(write_shards(codex_cards, out_dir, "codex", args.codex_shards))
     shard_paths.extend(write_shards(claude_cards, out_dir, "claude", args.claude_shards))
+    if generic_cards:
+        shard_paths.extend(write_shards(generic_cards, out_dir, "generic", args.generic_shards))
 
     manifest = {
         "created_at": _dt.datetime.utcnow().isoformat() + "Z",
         "codex_root": os.path.expanduser(args.codex_root),
         "claude_root": os.path.expanduser(args.claude_root),
+        "generic_root": os.path.expanduser(args.generic_root) if args.generic_root else None,
         "codex_cards": len(codex_cards),
         "claude_cards": len(claude_cards),
+        "generic_cards": len(generic_cards),
         "shards": shard_paths,
     }
     manifest_path = out_dir / "manifest.json"
@@ -205,8 +279,8 @@ def main():
         json.dump(manifest, handle, indent=2, sort_keys=True)
         handle.write("\n")
 
-    print("Wrote {0} Codex cards and {1} Claude cards to {2}".format(
-        len(codex_cards), len(claude_cards), out_dir
+    print("Wrote {0} Codex cards, {1} Claude cards, and {2} generic cards to {3}".format(
+        len(codex_cards), len(claude_cards), len(generic_cards), out_dir
     ))
     print("Manifest: {0}".format(manifest_path))
 
