@@ -15,7 +15,7 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
             "SKILL.md",
             "README.md",
             "agents/openai.yaml",
-            "assets/self-improvement-flow.svg",
+            "assets/banner.png",
             "assets/self-improvement-hero.png",
             "references/audit-method.md",
             "references/operating-rules.md",
@@ -35,22 +35,21 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
 
     def test_readme_marketing_and_install_paths(self):
         text = (ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn("assets/self-improvement-flow.svg", text)
+        self.assertIn("assets/banner.png", text)
         self.assertIn("subagent", text.lower())
         self.assertIn("GPT-5.3-Codex-Spark", text)
-        self.assertIn("Install in One Prompt", text)
+        self.assertIn("Install by Copy-Paste Prompt", text)
         self.assertIn("https://github.com/Chenwei-1999/agent-self-improvement.git", text)
         self.assertIn("Codex", text)
         self.assertIn("Claude", text)
         self.assertIn("install_skill.py", text)
 
-    def test_workflow_diagram_shows_core_advantage(self):
-        text = (ROOT / "assets" / "self-improvement-flow.svg").read_text(encoding="utf-8")
-        self.assertIn("Conversation history", text)
-        self.assertIn("GPT-5.3-", text)
-        self.assertIn("Codex-Spark", text)
-        self.assertIn("Spark subagent fanout", text)
-        self.assertIn("Evidence ledger", text)
+    def test_readme_flow_shows_core_advantage(self):
+        text = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("conversation history", text)
+        self.assertIn("compact cards + shards", text)
+        self.assertIn("GPT-5.3-Codex-Spark scout subagents", text)
+        self.assertIn("evidence ledger -> durable rules", text)
 
     def test_copy_paste_install_prompt_is_actionable(self):
         text = (ROOT / "INSTALL_PROMPT.md").read_text(encoding="utf-8")

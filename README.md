@@ -1,12 +1,25 @@
-# Self-Improvement Skill
+<p align="center">
+  <img src="assets/banner.png" width="900" alt="Agent Self-Improvement banner">
+</p>
 
-![Self-Improvement workflow](assets/self-improvement-flow.svg)
+<h1 align="center">Agent Self-Improvement</h1>
+
+<p align="center">
+  <b>Turn real conversation history into better agent behavior.</b>
+</p>
+
+<p align="center">
+  <a href="https://developers.openai.com/codex/skills"><img src="https://img.shields.io/badge/Codex-Skill-111827?style=for-the-badge&logo=openai&logoColor=white" alt="Codex Skill"></a>
+  <img src="https://img.shields.io/badge/Subagents-GPT--5.3--Codex--Spark-0f766e?style=for-the-badge" alt="GPT-5.3-Codex-Spark subagents">
+  <img src="https://img.shields.io/badge/Install-Copy--Paste--Prompt-f59e0b?style=for-the-badge" alt="Copy-paste install">
+  <img src="https://img.shields.io/badge/Tests-7%20Passing-2563eb?style=for-the-badge" alt="Tests passing">
+</p>
 
 Self-Improvement is a portable agent skill for turning real conversation history into better operating rules. It is designed for Codex, Claude Code, and generic agents that support filesystem-installed skills.
 
-The core move is broad evidence coverage: shard conversation history into compact cards, let fast `GPT-5.3-Codex-Spark` scout subagents scan many shards in parallel, then have the main agent synthesize durable rules, config updates, and follow-up tests.
+The core advantage is coverage: shard conversation history into compact cards, let fast `GPT-5.3-Codex-Spark` scout subagents scan many shards in parallel, then spend the main agent's stronger reasoning on synthesis, rules, and safe installation.
 
-## Install in One Prompt
+## Install by Copy-Paste Prompt
 
 Copy this prompt into Codex, Claude Code, or another local coding agent:
 
@@ -38,6 +51,29 @@ Most agent "self-improvement" drifts into vibes or hand-picked examples. This pa
 - Dispatches `GPT-5.3-Codex-Spark` code-scout subagents for fast, low-cost coverage across many shards.
 - Preserves the main agent as the owner of final judgment and config writes.
 - Produces scoped rules that can be installed into `AGENTS.md`, `CLAUDE.md`, memories, or a reusable skill.
+
+## How It Works
+
+```text
+conversation history
+  Codex sessions, Claude projects, exported transcripts
+        |
+        v
+compact cards + shards
+  card id, user correction, evidence, candidate lesson
+        |
+        v
+GPT-5.3-Codex-Spark scout subagents
+  shard A -> repeated failures
+  shard B -> successful patterns
+  shard C -> missing rules
+        |
+        v
+main agent synthesis
+  evidence ledger -> durable rules -> AGENTS.md / CLAUDE.md / skills
+```
+
+The scouts do the wide scan. The main agent does the judgment.
 
 ## Install
 
@@ -109,7 +145,7 @@ self-improvement/
   SKILL.md
   README.md
   agents/openai.yaml
-  assets/self-improvement-flow.svg
+  assets/banner.png
   assets/self-improvement-hero.png
   references/audit-method.md
   references/operating-rules.md
@@ -124,4 +160,4 @@ The skill intentionally separates high-volume scanning from high-stakes synthesi
 
 This keeps cost low without lowering quality.
 
-The original generated hero image is kept at `assets/self-improvement-hero.png`; the README uses the deterministic workflow SVG because process labels need to render exactly.
+The original generated hero image is kept at `assets/self-improvement-hero.png`; the README uses `assets/banner.png` because the strongest skill READMEs lead with a polished banner and keep process details readable in Markdown.
