@@ -8,16 +8,70 @@ import datetime as _dt
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 
 
-SECRET_MARKERS = ("sk-", "api_key", "apikey", "token", "password", "secret")
+SECRET_PATTERNS = (
+    re.compile(r"sk-[A-Za-z0-9_\-]{16,}"),
+    re.compile(r"ghp_[A-Za-z0-9]{20,}"),
+    re.compile(r"github_pat_[A-Za-z0-9_]{20,}"),
+    re.compile(r"xox[abpr]-[A-Za-z0-9\-]{10,}"),
+    re.compile(r"AKIA[0-9A-Z]{16}"),
+    re.compile(r"AIza[0-9A-Za-z_\-]{30,}"),
+    re.compile(r"hf_[A-Za-z0-9]{30,}"),
+    re.compile(r"glpat-[A-Za-z0-9_\-]{20,}"),
+    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
+    re.compile(r"Bearer\s+[A-Za-z0-9._~+/=\-]{20,}", re.IGNORECASE),
+    re.compile(
+        r"(?i)(?:api[_\-]?key|access[_\-]?token|secret[_\-]?key|client[_\-]?secret)"
+        r"['\"]?\s*[:=]\s*['\"]?[A-Za-z0-9_\-./+]{16,}"
+    ),
+)
+SESSION_ID_RE = re.compile(
+    r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})",
+    re.IGNORECASE,
+)
+CODEX_TOOL_TYPES = {
+    "function_call",
+    "function_call_output",
+    "local_shell_call",
+    "local_shell_call_output",
+    "tool_use",
+    "tool_result",
+}
 DEFAULT_GENERIC_ROOTS = (
     "~/.gemini/history",
     "~/.gemini/tmp",
     "~/.agents/history",
     "~/.agents/conversations",
 )
+
+
+def redact_secrets(text):
+    for pattern in SECRET_PATTERNS:
+        text = pattern.sub("[redacted]", text)
+    return text
+
+
+def session_id_from_path(path):
+    p = Path(path)
+    candidates = [p.stem, p.parent.name]
+    for candidate in candidates:
+        match = SESSION_ID_RE.search(candidate)
+        if match:
+            return match.group(1)
+    return p.stem
+
+
+def timestamp_from_payload(payload):
+    if not isinstance(payload, dict):
+        return ""
+    for key in ("timestamp", "created_at", "time", "ts", "_ts"):
+        value = payload.get(key)
+        if value:
+            return str(value)[:40]
+    return ""
 
 
 def read_jsonl(path):
@@ -64,9 +118,7 @@ def compact(value, limit):
         except Exception:
             value = str(value)
     value = " ".join(value.replace("\x00", " ").split())
-    lowered = value.lower()
-    if any(marker in lowered for marker in SECRET_MARKERS):
-        value = "[redacted possible secret]"
+    value = redact_secrets(value)
     if len(value) > limit:
         return value[: limit - 3] + "..."
     return value
@@ -95,6 +147,46 @@ def extract_text_from_message(message):
     return ""
 
 
+def tool_text_from_codex(payload):
+    item_type = payload.get("type") or ""
+    if item_type not in CODEX_TOOL_TYPES:
+        return None
+    name = payload.get("name") or payload.get("tool") or ""
+
+    if item_type in ("function_call", "tool_use"):
+        args = payload.get("arguments")
+        if args is None:
+            args = payload.get("input") or payload.get("action") or ""
+        if not isinstance(args, str):
+            try:
+                args = json.dumps(args, ensure_ascii=False)
+            except Exception:
+                args = str(args)
+        return "[tool:{0}] {1}".format(name or "call", args).strip()
+
+    if item_type in ("function_call_output", "tool_result", "local_shell_call_output"):
+        output = payload.get("output")
+        if output is None:
+            output = payload.get("content")
+        return "[tool_output:{0}] {1}".format(
+            name or item_type, extract_text_from_message(output)
+        ).strip()
+
+    if item_type == "local_shell_call":
+        action = payload.get("action") or {}
+        if isinstance(action, dict):
+            command = action.get("command") or action
+            if not isinstance(command, str):
+                try:
+                    command = json.dumps(command, ensure_ascii=False)
+                except Exception:
+                    command = str(command)
+            return "[shell] {0}".format(command)
+        return "[shell] {0}".format(action)
+
+    return None
+
+
 def card_from_codex(path, line_number, payload, max_chars):
     if not isinstance(payload, dict):
         return None
@@ -119,6 +211,11 @@ def card_from_codex(path, line_number, payload, max_chars):
         text = extract_text_from_message(payload.get("content"))
 
     if not text:
+        text = tool_text_from_codex(payload) or ""
+        if text and not role:
+            role = "tool"
+
+    if not text:
         return None
 
     return {
@@ -126,6 +223,8 @@ def card_from_codex(path, line_number, payload, max_chars):
         "source": "codex",
         "path": str(path),
         "line": line_number,
+        "session_id": session_id_from_path(path),
+        "timestamp": timestamp_from_payload(payload),
         "type": compact(item_type, 80),
         "role": compact(role or "unknown", 40),
         "text": compact(text, max_chars),
@@ -158,6 +257,8 @@ def card_from_claude(path, line_number, payload, max_chars):
         "source": "claude",
         "path": str(path),
         "line": line_number,
+        "session_id": session_id_from_path(path),
+        "timestamp": timestamp_from_payload(payload),
         "type": compact(item_type, 80),
         "role": compact(role or "unknown", 40),
         "text": compact(text, max_chars),
@@ -192,6 +293,8 @@ def card_from_generic_jsonl(path, line_number, payload, max_chars):
         "source": "generic",
         "path": str(path),
         "line": line_number,
+        "session_id": session_id_from_path(path),
+        "timestamp": timestamp_from_payload(payload),
         "type": compact(item_type, 80),
         "role": compact(role or "unknown", 40),
         "text": compact(text, max_chars),
@@ -208,6 +311,7 @@ def cards_from_text_file(path, max_chars):
         return []
     chunk_size = max(max_chars, 500)
     cards = []
+    session_id = session_id_from_path(path)
     for index, start in enumerate(range(0, len(text), chunk_size), 1):
         chunk = text[start:start + chunk_size]
         cards.append({
@@ -215,6 +319,8 @@ def cards_from_text_file(path, max_chars):
             "source": "generic",
             "path": str(path),
             "line": index,
+            "session_id": session_id,
+            "timestamp": "",
             "type": "text-export",
             "role": "unknown",
             "text": compact(chunk, max_chars),
@@ -302,7 +408,12 @@ def write_shards(cards, out_dir, source, shard_count):
                 handle.write("- source: {source}\n".format(**card))
                 handle.write("- role: {role}\n".format(**card))
                 handle.write("- type: {type}\n".format(**card))
-                handle.write("- file: {path}:{line}\n\n".format(**card))
+                handle.write("- file: {path}:{line}\n".format(**card))
+                if card.get("session_id"):
+                    handle.write("- session: {0}\n".format(card["session_id"]))
+                if card.get("timestamp"):
+                    handle.write("- ts: {0}\n".format(card["timestamp"]))
+                handle.write("\n")
                 handle.write("{0}\n\n".format(card["text"]))
         paths.append(str(path))
     return paths
@@ -341,8 +452,12 @@ def main():
     if generic_cards:
         shard_paths.extend(write_shards(generic_cards, out_dir, "generic", args.generic_shards))
 
+    try:
+        now = _dt.datetime.now(_dt.UTC)
+    except AttributeError:
+        now = _dt.datetime.utcnow().replace(tzinfo=_dt.timezone.utc)
     manifest = {
-        "created_at": _dt.datetime.utcnow().isoformat() + "Z",
+        "created_at": now.isoformat().replace("+00:00", "Z"),
         "codex_root": os.path.expanduser(args.codex_root),
         "claude_root": os.path.expanduser(args.claude_root),
         "generic_root": os.path.expanduser(generic_roots[0]) if len(generic_roots) == 1 else None,

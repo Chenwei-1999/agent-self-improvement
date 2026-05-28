@@ -22,6 +22,12 @@ ALIASES = {
     "generic": "agents",
 }
 EXCLUDE_DIRS = {".git", "__pycache__", ".pytest_cache", "tests", "conversation-audit"}
+DISCOVERY_HINTS = {
+    "codex": "verify: `codex --help` includes skills, or ls ~/.codex/skills",
+    "claude": "verify: `claude /skills` or check ~/.claude/settings.json skill loader",
+    "gemini": "verify: `gemini skills list`",
+    "agents": "verify: confirm your runtime scans ~/.agents/skills/",
+}
 
 
 def source_root():
@@ -60,11 +66,13 @@ def remove_existing_target(target_path):
         shutil.rmtree(str(target_path))
 
 
-def install_one(src, target_path, dry_run, force):
+def install_one(src, target_path, dry_run, force, hint=None):
     target_path = target_path.expanduser()
     display = str(target_path).replace(os.path.expanduser("~"), "~", 1)
     if dry_run:
         print("would install {0} -> {1}".format(src, display))
+        if hint:
+            print("  {0}".format(hint))
         return
 
     if target_exists(target_path):
@@ -76,6 +84,8 @@ def install_one(src, target_path, dry_run, force):
     target_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(str(src), str(target_path), ignore=ignore_patterns)
     print("installed {0}".format(display))
+    if hint:
+        print("  {0}".format(hint))
 
 
 def main():
@@ -92,8 +102,8 @@ def main():
     args = parser.parse_args()
 
     src = source_root()
-    for _, target_path in selected_targets(args.target, args.custom_dir).items():
-        install_one(src, target_path, args.dry_run, args.force)
+    for key, target_path in selected_targets(args.target, args.custom_dir).items():
+        install_one(src, target_path, args.dry_run, args.force, DISCOVERY_HINTS.get(key))
 
 
 if __name__ == "__main__":
