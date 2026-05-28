@@ -14,6 +14,7 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
             "SKILL.md",
             "README.md",
             "agents/openai.yaml",
+            "assets/self-improvement-flow.svg",
             "assets/self-improvement-hero.png",
             "references/audit-method.md",
             "references/operating-rules.md",
@@ -33,11 +34,19 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
 
     def test_readme_marketing_and_install_paths(self):
         text = (ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn("assets/self-improvement-hero.png", text)
+        self.assertIn("assets/self-improvement-flow.svg", text)
         self.assertIn("subagent", text.lower())
+        self.assertIn("GPT-5.3-Codex-Spark", text)
         self.assertIn("Codex", text)
         self.assertIn("Claude", text)
         self.assertIn("install_skill.py", text)
+
+    def test_workflow_diagram_shows_core_advantage(self):
+        text = (ROOT / "assets" / "self-improvement-flow.svg").read_text(encoding="utf-8")
+        self.assertIn("Conversation history", text)
+        self.assertIn("GPT-5.3-", text)
+        self.assertIn("Codex-Spark", text)
+        self.assertIn("Evidence ledger", text)
 
     def test_installer_dry_run_mentions_all_agent_targets(self):
         result = subprocess.run(

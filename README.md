@@ -1,17 +1,17 @@
 # Self-Improvement Skill
 
-![Self-Improvement hero](assets/self-improvement-hero.png)
+![Self-Improvement workflow](assets/self-improvement-flow.svg)
 
 Self-Improvement is a portable agent skill for turning real conversation history into better operating rules. It is designed for Codex, Claude Code, and generic agents that support filesystem-installed skills.
 
-The core move is broad evidence coverage: shard conversation history into compact cards, let cheap subagents scan many shards in parallel, then have the main agent synthesize durable rules, config updates, and follow-up tests.
+The core move is broad evidence coverage: shard conversation history into compact cards, let fast `GPT-5.3-Codex-Spark` scout subagents scan many shards in parallel, then have the main agent synthesize durable rules, config updates, and follow-up tests.
 
 ## Why It Exists
 
 Most agent "self-improvement" drifts into vibes or hand-picked examples. This package keeps it grounded:
 
 - Uses actual Codex and Claude conversation history.
-- Dispatches subagents for fast, low-cost coverage across many shards.
+- Dispatches `GPT-5.3-Codex-Spark` code-scout subagents for fast, low-cost coverage across many shards.
 - Preserves the main agent as the owner of final judgment and config writes.
 - Produces scoped rules that can be installed into `AGENTS.md`, `CLAUDE.md`, memories, or a reusable skill.
 
@@ -84,6 +84,7 @@ self-improvement/
   SKILL.md
   README.md
   agents/openai.yaml
+  assets/self-improvement-flow.svg
   assets/self-improvement-hero.png
   references/audit-method.md
   references/operating-rules.md
@@ -97,3 +98,5 @@ self-improvement/
 The skill intentionally separates high-volume scanning from high-stakes synthesis. Subagents can cheaply read and classify lots of history; the main agent still owns the final rules, user-facing explanation, and any writes to global config.
 
 This keeps cost low without lowering quality.
+
+The original generated hero image is kept at `assets/self-improvement-hero.png`; the README uses the deterministic workflow SVG because process labels need to render exactly.
