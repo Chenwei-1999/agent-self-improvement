@@ -1,0 +1,17 @@
+name: self-improvement
+display_name: Self-Improvement
+description: Audit conversation history with subagents and turn repeated corrections into durable operating rules.
+version: 0.1.0
+entrypoint: SKILL.md
+tags:
+  - self-improvement
+  - subagents
+  - conversation-history
+  - codex
+  - claude
+model_guidance:
+  main_agent: Use the strongest available model only for synthesis, risky decisions, and config edits.
+  scout_agent: Use cheap or fast code-tuned models for read-only conversation-card scans.
+  docs_agent: Use cheap or fast research models for documentation and policy lookups.
+default_prompt: Audit my conversation history with subagents, identify repeated user corrections and failures, and propose durable rules with evidence.
+
