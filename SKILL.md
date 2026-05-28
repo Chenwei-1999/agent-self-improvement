@@ -1,11 +1,27 @@
 ---
 name: self-improvement
-description: Use when an agent should improve its own operating rules by auditing Codex, Claude, or other conversation history with subagents and evidence-backed synthesis.
+description: Use when the user asks an agent to learn from Codex, Claude, chat, transcript, or conversation history; extract recurring corrections; improve operating rules; or update agent instructions.
 ---
 
 # Self-Improvement Skill
 
 Use this skill when the user asks to audit past chats, extract durable lessons, improve agent behavior, update AGENTS.md or CLAUDE.md, or compare recurring failures across Codex, Claude, and other agent transcripts.
+
+## Activation Contract
+
+Use for:
+
+- Auditing actual conversation history, transcripts, rollout summaries, or chat exports.
+- Finding repeated user corrections, repeated failures, durable preferences, and useful success patterns.
+- Proposing evidence-backed rules for AGENTS.md, CLAUDE.md, memory notes, or another skill.
+
+Do not use for:
+
+- One-off code review, ordinary debugging, or generic advice with no conversation-history evidence.
+- Installing rules from memory alone when the user asked for a history audit.
+- Silently rewriting global config. Show proposed rules unless the user explicitly asked for installation.
+
+Before writing any durable rule, collect source evidence and identify its scope: global, project, tool, or one-off.
 
 The central pattern is:
 
@@ -47,6 +63,18 @@ Do not rely on manual keyword search alone. The value of this skill is broad cov
    - Never silently rewrite global config. Show the rule set and make the write explicit unless the user already asked for installation.
 
 ## Useful Commands
+
+Install from GitHub by giving this line to a local coding agent:
+
+```text
+Install this skill: https://github.com/Chenwei-1999/agent-self-improvement
+```
+
+For agents with a skill installer:
+
+```text
+$skill-installer install https://github.com/Chenwei-1999/agent-self-improvement
+```
 
 Create conversation-card shards:
 

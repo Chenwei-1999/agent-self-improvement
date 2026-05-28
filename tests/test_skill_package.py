@@ -30,15 +30,27 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
         self.assertTrue(text.startswith("---\n"))
         self.assertIn("name: self-improvement", text)
         self.assertRegex(text, r"description: Use when .+conversation")
+        self.assertIn("Install this skill: https://github.com/Chenwei-1999/agent-self-improvement", text)
+        self.assertIn("$skill-installer install https://github.com/Chenwei-1999/agent-self-improvement", text)
+        self.assertIn("Activation Contract", text)
         self.assertIn("subagents", text.lower())
         self.assertLess(len(text.split()), 1200)
+
+    def test_openai_metadata_matches_system_skill_shape(self):
+        text = (ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
+        self.assertIn("interface:", text)
+        self.assertIn('display_name: "Self Improvement"', text)
+        self.assertIn("short_description:", text)
+        self.assertIn("default_prompt:", text)
 
     def test_readme_marketing_and_install_paths(self):
         text = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("assets/banner.png", text)
         self.assertIn("subagent", text.lower())
         self.assertIn("GPT-5.3-Codex-Spark", text)
-        self.assertIn("Install by Copy-Paste Prompt", text)
+        self.assertIn("Give this GitHub link to your coding agent", text)
+        self.assertIn("Install this skill: https://github.com/Chenwei-1999/agent-self-improvement", text)
+        self.assertIn("$skill-installer install https://github.com/Chenwei-1999/agent-self-improvement", text)
         self.assertIn("https://github.com/Chenwei-1999/agent-self-improvement.git", text)
         self.assertIn("Codex", text)
         self.assertIn("Claude", text)
@@ -53,7 +65,9 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
 
     def test_copy_paste_install_prompt_is_actionable(self):
         text = (ROOT / "INSTALL_PROMPT.md").read_text(encoding="utf-8")
-        self.assertIn("https://github.com/Chenwei-1999/agent-self-improvement.git", text)
+        self.assertIn("Install this skill: https://github.com/Chenwei-1999/agent-self-improvement", text)
+        self.assertIn("$skill-installer install https://github.com/Chenwei-1999/agent-self-improvement", text)
+        self.assertIn("git clone https://github.com/Chenwei-1999/agent-self-improvement.git", text)
         self.assertIn("python3 scripts/install_skill.py --target all --force", text)
         self.assertIn("python3 -m unittest discover -s tests -v", text)
 

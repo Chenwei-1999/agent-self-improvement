@@ -19,28 +19,20 @@ Self-Improvement is a portable agent skill for turning real conversation history
 
 The core advantage is coverage: shard conversation history into compact cards, let fast `GPT-5.3-Codex-Spark` scout subagents scan many shards in parallel, then spend the main agent's stronger reasoning on synthesis, rules, and safe installation.
 
-## Install by Copy-Paste Prompt
+## Quick Start
 
-Copy this prompt into Codex, Claude Code, or another local coding agent:
+Give this GitHub link to your coding agent:
 
 ```text
-Install the Self-Improvement Skill from GitHub.
+Install this skill: https://github.com/Chenwei-1999/agent-self-improvement
+```
 
-Repository: https://github.com/Chenwei-1999/agent-self-improvement.git
+That's the intended install path. The repo includes the installer, tests, and compatibility notes, so a local coding agent can clone it, run the installer, verify it, and report where it landed.
 
-Steps:
-1. Clone the repository into a temporary directory.
-2. From the cloned repository, run:
-   python3 scripts/install_skill.py --target all --force
-3. Verify the package:
-   python3 -m unittest discover -s tests -v
-4. Report the installed paths:
-   ~/.codex/skills/self-improvement
-   ~/.claude/skills/self-improvement
-   ~/.agents/skills/self-improvement
+If your agent supports `skill-installer`, the equivalent single command is:
 
-Do not edit unrelated global config. If a target runtime does not use one of
-those skill directories, explain that compatibility note instead of guessing.
+```text
+$skill-installer install https://github.com/Chenwei-1999/agent-self-improvement
 ```
 
 ## Why It Exists
@@ -75,11 +67,14 @@ main agent synthesis
 
 The scouts do the wide scan. The main agent does the judgment.
 
-## Install
+<details>
+<summary>Manual fallback</summary>
 
-If you already cloned the repository, run:
+If you need to install without an agent:
 
 ```bash
+git clone https://github.com/Chenwei-1999/agent-self-improvement.git
+cd agent-self-improvement
 python3 scripts/install_skill.py --target all --dry-run
 python3 scripts/install_skill.py --target all --force
 ```
@@ -102,7 +97,9 @@ Targets:
 
 Generic agent support assumes the runtime discovers skills from `~/.agents/skills/...` or lets you point it at that folder. Codex and Claude targets follow their local skill-directory conventions.
 
-## Quick Start
+</details>
+
+## First Use
 
 Create compact conversation cards:
 
