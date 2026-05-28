@@ -328,12 +328,18 @@ def cards_from_text_file(path, max_chars):
     return cards
 
 
-def collect_cards(root, source, max_chars):
+def collect_cards(root, source, max_chars, max_bytes=None):
     root = Path(root).expanduser()
     if not root.exists():
         return []
     cards = []
     for path in sorted(root.rglob("*.jsonl")):
+        if max_bytes is not None:
+            try:
+                if path.stat().st_size > max_bytes:
+                    continue
+            except Exception:
+                continue
         for line_number, payload in read_jsonl(path):
             if source == "codex":
                 card = card_from_codex(path, line_number, payload, max_chars)
@@ -436,13 +442,25 @@ def main():
     parser.add_argument("--max-chars", type=int, default=700, help="Maximum text length per card.")
     parser.add_argument("--max-files", type=int, default=None, help="Maximum number of generic export files to scan.")
     parser.add_argument("--max-bytes", type=int, default=None, help="Skip generic export files larger than this many bytes.")
+    parser.add_argument(
+        "--codex-max-bytes",
+        type=int,
+        default=None,
+        help="Skip individual Codex JSONL files larger than this many bytes.",
+    )
+    parser.add_argument(
+        "--claude-max-bytes",
+        type=int,
+        default=None,
+        help="Skip individual Claude JSONL files larger than this many bytes.",
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.out).expanduser()
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    codex_cards = collect_cards(args.codex_root, "codex", args.max_chars)
-    claude_cards = collect_cards(args.claude_root, "claude", args.max_chars)
+    codex_cards = collect_cards(args.codex_root, "codex", args.max_chars, args.codex_max_bytes)
+    claude_cards = collect_cards(args.claude_root, "claude", args.max_chars, args.claude_max_bytes)
     generic_roots = args.generic_root or default_generic_roots()
     generic_cards = collect_generic_roots(generic_roots, args.max_chars, args.max_files, args.max_bytes)
 

@@ -32,6 +32,26 @@ Each card should be small enough for cheap agents to scan quickly. A good card c
 Use `scripts/extract_conversation_cards.py` for local Codex, Claude, Gemini, and
 generic histories. It writes Markdown shard files and a JSON manifest.
 
+A rendered shard entry looks like this:
+
+```markdown
+## codex-e3e3d7229233
+
+- source: codex
+- role: tool
+- type: function_call
+- file: /home/user/.codex/sessions/2025-11-01-<uuid>/rollout.jsonl:2
+- session: aaaaaaaa-bbbb-cccc-dddd-111122223333
+- ts: 2025-11-01T12:00:10Z
+
+[tool:shell] {"command": ["bash", "-lc", "ls /tmp"]}
+```
+
+`role: tool` carries Codex `function_call` / `function_call_output` /
+`local_shell_call` events, so scout prompts can rely on the `role` field to
+separate user/assistant text from agent actions. The `session` and `ts` lines
+let scouts cluster cards from the same session and order them in time.
+
 ## Step 2: Shard for Agent Roles
 
 Shard by source and approximate size. Prefer many small shards over one huge shard. The main agent should dispatch independent read-only jobs such as:
