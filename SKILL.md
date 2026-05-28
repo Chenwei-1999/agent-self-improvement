@@ -5,7 +5,9 @@ description: Use when the user asks an agent to learn from agent conversation hi
 
 # Self-Improvement Skill
 
-Use this skill when the user asks to audit past chats, extract durable lessons, improve agent behavior, update AGENTS.md, CLAUDE.md, GEMINI.md, or another agent instruction file, or compare recurring failures across agent transcripts.
+Use this skill when the user asks to audit past chats, extract durable lessons,
+improve the current agent itself, update this self-improvement skill, or compare
+recurring failures across agent transcripts.
 
 ## Activation Contract
 
@@ -13,34 +15,50 @@ Use for:
 
 - Auditing actual conversation history, transcripts, rollout summaries, or chat exports.
 - Finding repeated user corrections, repeated failures, durable preferences, and useful success patterns.
-- Proposing evidence-backed rules for AGENTS.md, CLAUDE.md, memory notes, or another skill.
+- Proposing evidence-backed updates to the current agent's self-improvement
+  behavior or this skill package.
 
 Do not use for:
 
 - One-off code review, ordinary debugging, or generic advice with no conversation-history evidence.
 - Installing rules from memory alone when the user asked for a history audit.
-- Silently rewriting global config. Show proposed rules unless the user explicitly asked for installation.
+- Proposing project instruction files, memory notes, or global config writes
+  unless the user explicitly asked for that broader destination.
+- Silently rewriting durable behavior. Show proposed updates unless the user explicitly asked for installation.
 
-Before writing any durable rule, collect source evidence and identify its scope: global, project, tool, or one-off.
+Before writing any durable rule, collect source evidence and identify whether it
+belongs to the agent itself. Treat project-specific, global, and memory-like
+findings as report-only unless the user explicitly expands the scope.
 
-## Installation Decision Gate
+## Default Full-History Scan
 
-Ask the user which rule candidates to install before writing any durable rule.
-Present the evidence-backed candidates with recommended scopes, then offer
-clear destinations:
+Do not stop for an upfront scope question when normal defaults are usable.
+Default to scan all discoverable agent conversation history: Codex sessions,
+Claude projects, Gemini history/log exports, and generic transcript folders.
+If the user named a narrower project, time range, or transcript folder, use that
+constraint; otherwise gather first and ask later.
 
-- Report only: summarize candidates and do not install.
-- Project instruction file: write project-scoped rules to `AGENTS.md`,
-  `CLAUDE.md`, `GEMINI.md`, or the equivalent project file.
-- Memory note: preserve durable user preferences or cross-project defaults.
-- Reusable skill: patch this skill or another skill when the workflow itself
-  should change.
-- Custom destination: use a user-named global config, project file, or runtime
-  skill directory.
+## Installation Decision Gate / Agent-Self Update Gate
+
+Ask the user which rule candidates to install into the agent itself before
+writing any durable rule. Present the evidence-backed candidates with
+recommended scopes, then offer clear destinations:
+
+- report only: summarize candidates and do not install.
+- Agent itself: patch this skill package or the current agent's installed
+  self-improvement behavior.
+
+Only propose updates to the agent itself by default. Do not propose project instruction files, memory notes, or global config writes unless the user explicitly asks for that broader destination.
 
 Only install the candidates the user selected. If the user asks for a default,
 prefer the narrowest durable destination that will affect the next relevant
-decision.
+agent decision.
+
+The default interaction model is a single user interaction after synthesis:
+present the update recommendations, evidence, scopes, destinations, and warnings,
+then request confirmation before writing durable rules. Do not ask preliminary
+questions unless history access is blocked or the request is ambiguous in a way
+that would make scanning unsafe.
 
 ### Global or Systemic Change Warning
 
@@ -65,16 +83,16 @@ The central pattern is:
 1. Turn conversation history into compact evidence cards.
 2. Fan those cards out to cheap, read-only subagents.
 3. Synthesize repeated corrections into durable operating rules.
-4. Install only the rules that are evidence-backed and scoped.
+4. Install only evidence-backed updates to the agent itself.
 
 Do not rely on manual keyword search alone. The value of this skill is broad coverage: subagents scan many shards of actual dialogue, surface failures and user corrections, and the main agent owns the final judgment.
 
 ## Workflow
 
-1. Define scope.
-   - Sources: local agent logs, exported transcripts, project notes, Codex sessions, Claude projects, Gemini exports, or a user-provided folder.
-   - Time range: all history, recent history, or a specific project.
-   - Output: report only, proposed rules, memory note, AGENTS.md patch, CLAUDE.md patch, or installer-ready skill update.
+1. Gather default history.
+   - Scan all discoverable local agent logs, exported transcripts, project notes, Codex sessions, Claude projects, Gemini exports, and user-provided folders.
+   - Only narrow the source, time range, or project when the user explicitly requested that constraint.
+   - Avoid an upfront clarification unless access is blocked or scanning would be unsafe.
 
 2. Extract cards.
    - Prefer `scripts/extract_conversation_cards.py` for local histories and exported transcripts. It has native Codex and Claude readers plus a generic reader for Gemini, Cursor, Continue, Aider, OpenHands, and other transcript exports.
@@ -94,11 +112,10 @@ Do not rely on manual keyword search alone. The value of this skill is broad cov
    - Drop one-off preferences unless the user explicitly wants them preserved.
 
 5. Install or report.
-   - Ask the user which rule candidates to install and where before writing files.
+   - Ask the user which agent-self update candidates to install before writing files.
    - Warn and get permission before global or systemic installs unless already authorized.
-   - For Codex, propose edits to `AGENTS.md`, a memory update, or a skill package.
-   - For Claude, propose mirror edits to `CLAUDE.md`.
-   - For Gemini CLI, propose edits to `GEMINI.md`, `.gemini/skills`, or extension packaging.
+   - For Codex, Claude, Gemini CLI, or generic agents, propose patches to this skill package or that runtime's installed copy of the skill.
+   - Do not propose edits to `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, memory, or global config unless the user explicitly asks for those destinations.
    - For portable use, install this skill with `scripts/install_skill.py`.
    - Never silently rewrite global config. Show the rule set and make the write explicit unless the user already asked for installation.
 

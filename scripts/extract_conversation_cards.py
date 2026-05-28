@@ -12,6 +12,12 @@ from pathlib import Path
 
 
 SECRET_MARKERS = ("sk-", "api_key", "apikey", "token", "password", "secret")
+DEFAULT_GENERIC_ROOTS = (
+    "~/.gemini/history",
+    "~/.gemini/tmp",
+    "~/.agents/history",
+    "~/.agents/conversations",
+)
 
 
 def read_jsonl(path):
@@ -24,6 +30,29 @@ def read_jsonl(path):
                 yield line_number, json.loads(line)
             except Exception:
                 continue
+
+
+def read_json_records(path):
+    try:
+        with path.open("r", encoding="utf-8", errors="replace") as handle:
+            data = json.load(handle)
+    except Exception:
+        return
+
+    if isinstance(data, list):
+        for index, item in enumerate(data, 1):
+            yield index, item
+    else:
+        yield 1, data
+
+
+def default_generic_roots():
+    roots = []
+    for root in DEFAULT_GENERIC_ROOTS:
+        path = Path(root).expanduser()
+        if path.exists():
+            roots.append(str(path))
+    return roots
 
 
 def compact(value, limit):
@@ -235,9 +264,22 @@ def collect_generic_cards(root, max_chars, max_files=None, max_bytes=None):
                 card = card_from_generic_jsonl(path, line_number, payload, max_chars)
                 if card:
                     cards.append(card)
+        elif suffix == ".json":
+            files_seen += 1
+            for line_number, payload in read_json_records(path):
+                card = card_from_generic_jsonl(path, line_number, payload, max_chars)
+                if card:
+                    cards.append(card)
         elif suffix in (".md", ".txt"):
             files_seen += 1
             cards.extend(cards_from_text_file(path, max_chars))
+    return cards
+
+
+def collect_generic_roots(roots, max_chars, max_files=None, max_bytes=None):
+    cards = []
+    for root in roots:
+        cards.extend(collect_generic_cards(root, max_chars, max_files, max_bytes))
     return cards
 
 
@@ -270,7 +312,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--codex-root", default="~/.codex/sessions", help="Root containing Codex JSONL history.")
     parser.add_argument("--claude-root", default="~/.claude/projects", help="Root containing Claude JSONL history.")
-    parser.add_argument("--generic-root", default=None, help="Optional root containing exported JSONL, Markdown, or text transcripts from any coding agent.")
+    parser.add_argument(
+        "--generic-root",
+        action="append",
+        default=None,
+        help="Root containing exported JSON, JSONL, Markdown, or text transcripts from any coding agent. May be passed multiple times; when omitted, safe conventional roots are auto-discovered.",
+    )
     parser.add_argument("--out", default="conversation-audit/cards", help="Output directory for shard files.")
     parser.add_argument("--codex-shards", type=int, default=16, help="Number of Codex shard files.")
     parser.add_argument("--claude-shards", type=int, default=10, help="Number of Claude shard files.")
@@ -285,7 +332,8 @@ def main():
 
     codex_cards = collect_cards(args.codex_root, "codex", args.max_chars)
     claude_cards = collect_cards(args.claude_root, "claude", args.max_chars)
-    generic_cards = collect_generic_cards(args.generic_root, args.max_chars, args.max_files, args.max_bytes)
+    generic_roots = args.generic_root or default_generic_roots()
+    generic_cards = collect_generic_roots(generic_roots, args.max_chars, args.max_files, args.max_bytes)
 
     shard_paths = []
     shard_paths.extend(write_shards(codex_cards, out_dir, "codex", args.codex_shards))
@@ -297,7 +345,8 @@ def main():
         "created_at": _dt.datetime.utcnow().isoformat() + "Z",
         "codex_root": os.path.expanduser(args.codex_root),
         "claude_root": os.path.expanduser(args.claude_root),
-        "generic_root": os.path.expanduser(args.generic_root) if args.generic_root else None,
+        "generic_root": os.path.expanduser(generic_roots[0]) if len(generic_roots) == 1 else None,
+        "generic_roots": [os.path.expanduser(root) for root in generic_roots],
         "codex_cards": len(codex_cards),
         "claude_cards": len(claude_cards),
         "generic_cards": len(generic_cards),

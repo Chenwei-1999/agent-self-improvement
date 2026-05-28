@@ -17,9 +17,24 @@ Keep rules tied to their scope:
 - Skill-specific behavior belongs in the skill.
 - One-off task details belong in the report, not durable config.
 
+For this self-improvement skill, the default writable scope is only the agent
+itself: the shared skill package or the runtime's installed copy. Other scopes
+are taxonomy labels for reporting unless the user explicitly expands the
+destination.
+
 When a write affects multiple projects, future sessions, shared memory, or a
 reusable skill, name the destination and expected blast radius before applying
 the change.
+
+## Interaction Timing
+
+For self-improvement audits, gather default evidence first. The normal user
+interaction should be one final proposal that lists update candidates, scopes,
+destinations, warnings, and asks what to install.
+
+By default, install only updates to the agent itself. Report project, memory, or
+global-config lessons as out of scope unless the user explicitly requests those
+destinations.
 
 ## Subagents for Coverage
 

@@ -6,12 +6,17 @@ This method is for extracting agent-improvement rules from real conversation his
 
 Useful inputs include:
 
-- Codex rollout summaries, JSONL sessions, memories, AGENTS.md files, and local logs.
-- Claude Code project conversations, CLAUDE.md files, and transcript exports.
+- Codex rollout summaries, JSONL sessions, installed skill files, and local logs.
+- Claude Code project conversations, installed skill files, and transcript exports.
 - User-provided chat exports from other agents.
 - Existing rule files, skill docs, and project-specific conventions.
 
 Prefer original conversation data when available. Summaries are useful for routing, but they should not be the only source for durable rules.
+
+Default to a full-history scan. Do not stop for an upfront scope question when
+local defaults are available: scan Codex sessions, Claude projects, Gemini
+history/log folders, and generic transcript exports first. Narrow the scan only
+when the user named a project, time range, or source.
 
 ## Step 1: Build Compact Cards
 
@@ -24,7 +29,8 @@ Each card should be small enough for cheap agents to scan quickly. A good card c
 - Evidence: file path, command, job id, config path, or output snippet.
 - Candidate lesson: one sentence.
 
-Use `scripts/extract_conversation_cards.py` for local Codex and Claude histories. It writes Markdown shard files and a JSON manifest.
+Use `scripts/extract_conversation_cards.py` for local Codex, Claude, Gemini, and
+generic histories. It writes Markdown shard files and a JSON manifest.
 
 ## Step 2: Shard for Agent Roles
 
@@ -36,7 +42,7 @@ explicit user corrections, and durable behavior rules. Return:
 1. Finding
 2. Evidence card ids
 3. Proposed rule
-4. Scope: global, project, tool, or one-off
+4. Scope: agent itself or report-only
 5. Confidence: high, medium, low
 ```
 
@@ -69,20 +75,22 @@ Show the proposed rules, evidence references, recommended scope, and the
 available destinations:
 
 - report only: no install.
-- Project behavior: project instruction file such as `AGENTS.md`, `CLAUDE.md`,
-  or `GEMINI.md`.
-- Global agent behavior: user-level AGENTS/CLAUDE configuration.
-- Reusable workflow: reusable skill package.
-- Historical preference: memory note.
+- Agent itself: patch this skill package or the current runtime's installed copy
+  of it.
 
-Install rules at the narrowest durable location selected by the user.
+Install rules only into the agent itself by default. Treat project files, memory, and global config as out of scope unless the user explicitly requests those destinations.
+
+This should normally be the only user interaction: gather history, synthesize
+update recommendations, then request confirmation for the selected installs.
 
 Warn before global or systemic changes. If a proposed write affects global
 config, memory, reusable skills, or multiple projects, state the destination,
 blast radius, and reason. Continue only with explicit user permission or when
 the original user prompt already authorized that class of change.
 
-When editing shared config, preserve existing rules and add the smallest clear patch. For cross-tool parity, update Codex, Claude, Gemini, or generic-agent instructions when the rule should affect multiple tools.
+When editing the skill, preserve existing rules and add the smallest clear patch.
+For cross-tool parity, update the shared skill behavior rather than divergent
+project or global instruction files.
 
 ## Step 5: Verify
 

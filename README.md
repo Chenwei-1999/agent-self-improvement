@@ -16,7 +16,10 @@
   <img src="https://img.shields.io/badge/Install-Copy--Paste--Prompt-f59e0b?style=for-the-badge" alt="Copy-paste install">
 </p>
 
-Self-Improvement is a portable agent skill for turning real conversation history into better operating rules. It is designed for SKILL.md-compatible agents, including Gemini CLI, Codex, Claude Code, and generic agents that support filesystem-installed skills.
+Self-Improvement is a portable agent skill for turning real conversation
+history into better behavior for the agent itself. It is designed for
+SKILL.md-compatible agents, including Gemini CLI, Codex, Claude Code, and
+generic agents that support filesystem-installed skills.
 
 The core advantage is coverage: shard conversation history into compact cards, let fast read-only scout subagents scan many shards in parallel, then spend the main agent's stronger reasoning on synthesis, rules, and safe installation.
 
@@ -49,10 +52,15 @@ Most agent "self-improvement" drifts into vibes or hand-picked examples. This pa
 - Uses actual agent conversation history, including Codex sessions, Claude projects, Gemini exports, and generic transcript folders.
 - Dispatches role-based scout subagents for fast, low-cost coverage across many shards.
 - Preserves the main agent as the owner of final judgment and config writes.
-- Produces scoped rules that can be installed into `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, memories, or a reusable skill.
+- Produces scoped updates for this skill or the current agent's installed
+  self-improvement behavior.
+- By default, scan all discoverable agent histories before asking the user for
+  decisions.
 - Before writing any rule, ask the user which candidates to install and whether
-  they belong in a project instruction file, memory note, reusable skill, or
-  report-only output.
+  they should update the agent itself or stay as report-only output.
+- It only updates the agent itself by default, not project instruction files, memories, or global config.
+- The only required user interaction is the final update proposal: review the
+  recommendations, destinations, and warnings, then confirm what to install.
 - Warn before global or systemic changes unless the user's prompt explicitly
   allows global config, memory, reusable-skill, or cross-project writes.
 
@@ -87,7 +95,7 @@ history-scout subagents
         |
         v
 main agent synthesis
-  evidence ledger -> durable rules -> AGENTS.md / CLAUDE.md / GEMINI.md / skills
+  evidence ledger -> agent-self updates -> installed skill package
 ```
 
 The scouts do the wide scan. The main agent does the judgment.
@@ -130,15 +138,19 @@ Generic agent support assumes the runtime discovers skills from `~/.agents/skill
 
 ## First Use
 
-Create compact conversation cards:
+Create compact conversation cards across local agent histories:
 
 ```bash
 python3 scripts/extract_conversation_cards.py --out conversation-audit/cards
 ```
 
-By default this reads `~/.codex/sessions` and `~/.claude/projects`. Override them with `--codex-root` and `--claude-root` when using exported history or a different machine layout.
+By default this reads Codex sessions, Claude projects, and safe conventional
+generic history roots such as Gemini `history` and `tmp` folders when present.
+Override Codex and Claude with `--codex-root` and `--claude-root` when using
+exported history or a different machine layout.
 
-For Gemini CLI and other coding agents, export transcripts to a folder and pass it as `--generic-root`:
+For additional Gemini CLI or other coding-agent exports, pass one or more
+generic roots:
 
 ```bash
 python3 scripts/extract_conversation_cards.py \
@@ -160,11 +172,13 @@ find repeated user corrections and agent failures, then propose durable rules.
 Expected outputs:
 
 - Evidence ledger: where each finding came from.
-- Rule candidates: global, project-specific, and tool-specific.
-- User installation decision: which rules to install, skip, or keep as report only.
+- Rule candidates: agent-self updates, plus out-of-scope observations when useful.
+- Single user confirmation: which update recommendations to install, skip, or
+  keep as report only.
 - Global/systemic warning: scope and destination when a selected install affects
   multiple projects or future sessions.
-- Proposed installs: project instruction file, memory note, global config, or skill patch.
+- Proposed installs: patch this skill package or the current agent's installed
+  self-improvement behavior.
 - Verification plan: how to test the new behavior before calling it done.
 
 ## What You Get After Running It
@@ -179,13 +193,14 @@ The normal output is:
   sequential review.
 - `manifest.json`: source roots, card counts, and shard paths.
 - Evidence ledger: card ids, source files, and observed correction signals.
-- Rule candidates: scoped as global, project, tool, or one-off.
-- Install decision prompt: ask which candidates should be installed, skipped, or
-  reported only.
+- Rule candidates: scoped to the agent itself by default; project, memory, and
+  global findings are reported as out-of-scope unless explicitly requested.
+- Install decision prompt: the single required user interaction, asking which
+  candidates should be installed, skipped, or reported only.
 - Scope warning: call out global or systemic changes before any write that
   affects future sessions or multiple projects.
-- Install proposal: exact edits for a project instruction file, `AGENTS.md`,
-  `CLAUDE.md`, `GEMINI.md`, memory notes, or a skill patch.
+- Install proposal: exact edits for this skill package or the current agent's
+  installed copy of it.
 
 ## What Good Looks Like
 
@@ -194,7 +209,8 @@ A good audit does not say "be more careful." It says:
 - When a user asks for repo status, inspect live files and scheduler state before summarizing.
 - When a long-running job is active, report concrete state, elapsed time, and next gate.
 - When history is large, use subagents to scan shards and keep the main agent on synthesis.
-- When rules should persist across tools, mirror them in the right instruction files instead of letting Codex, Claude, Gemini, and generic agents diverge.
+- When a lesson should persist, encode it in the shared skill behavior so Codex,
+  Claude, Gemini, and generic agents can consume the same agent-self update.
 
 ## Package Layout
 
@@ -215,7 +231,7 @@ self-improvement/
 
 ## Design Notes
 
-The skill intentionally separates high-volume scanning from high-stakes synthesis. Role-based scout agents can cheaply read and classify lots of history; the main agent still owns the final rules, user-facing explanation, and any writes to global config.
+The skill intentionally separates high-volume scanning from high-stakes synthesis. Role-based scout agents can cheaply read and classify lots of history; the main agent still owns the final rules, user-facing explanation, and any writes to the installed skill.
 
 This keeps cost low without lowering quality.
 
