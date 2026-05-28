@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class SelfImprovementSkillPackageTests(unittest.TestCase):
     def test_required_files_exist(self):
         expected = [
+            "INSTALL_PROMPT.md",
             "SKILL.md",
             "README.md",
             "agents/openai.yaml",
@@ -37,6 +38,8 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
         self.assertIn("assets/self-improvement-flow.svg", text)
         self.assertIn("subagent", text.lower())
         self.assertIn("GPT-5.3-Codex-Spark", text)
+        self.assertIn("Install in One Prompt", text)
+        self.assertIn("https://github.com/Chenwei-1999/agent-self-improvement.git", text)
         self.assertIn("Codex", text)
         self.assertIn("Claude", text)
         self.assertIn("install_skill.py", text)
@@ -46,7 +49,14 @@ class SelfImprovementSkillPackageTests(unittest.TestCase):
         self.assertIn("Conversation history", text)
         self.assertIn("GPT-5.3-", text)
         self.assertIn("Codex-Spark", text)
+        self.assertIn("Spark subagent fanout", text)
         self.assertIn("Evidence ledger", text)
+
+    def test_copy_paste_install_prompt_is_actionable(self):
+        text = (ROOT / "INSTALL_PROMPT.md").read_text(encoding="utf-8")
+        self.assertIn("https://github.com/Chenwei-1999/agent-self-improvement.git", text)
+        self.assertIn("python3 scripts/install_skill.py --target all --force", text)
+        self.assertIn("python3 -m unittest discover -s tests -v", text)
 
     def test_installer_dry_run_mentions_all_agent_targets(self):
         result = subprocess.run(

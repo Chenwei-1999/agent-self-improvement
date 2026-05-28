@@ -1,159 +1,175 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">Self-Improvement Skill workflow</title>
-  <desc id="desc">Conversation history is extracted into cards, scanned by GPT-5.3-Codex-Spark subagents in parallel, then synthesized by the main agent into evidence-backed rules.</desc>
+  <desc id="desc">A dark technical workflow showing conversation history sharded into cards, scanned in parallel by GPT-5.3-Codex-Spark subagents, and synthesized into an evidence ledger and durable operating rules.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f7fafc"/>
-      <stop offset="0.52" stop-color="#eef7f5"/>
-      <stop offset="1" stop-color="#f8f3ea"/>
+    <radialGradient id="haloA" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0.38"/>
+      <stop offset="0.55" stop-color="#14b8a6" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="haloB" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#f59e0b" stop-opacity="0.32"/>
+      <stop offset="0.55" stop-color="#f97316" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101827"/>
+      <stop offset="1" stop-color="#07111f"/>
     </linearGradient>
-    <linearGradient id="dark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#17202a"/>
-      <stop offset="1" stop-color="#263747"/>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#162235"/>
+      <stop offset="1" stop-color="#0c1524"/>
     </linearGradient>
     <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0f766e"/>
-      <stop offset="1" stop-color="#14b8a6"/>
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
     </linearGradient>
-    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f59e0b"/>
-      <stop offset="1" stop-color="#f97316"/>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#fb7185"/>
     </linearGradient>
-    <filter id="shadow" x="-15%" y="-20%" width="130%" height="150%">
-      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.16"/>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0v42" fill="none" stroke="#1e293b" stroke-width="1" opacity="0.55"/>
+    </pattern>
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#38bdf8" opacity="0.24"/>
+    </pattern>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#000814" flood-opacity="0.45"/>
     </filter>
-    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
-      <path d="M2,2 L10,6 L2,10 Z" fill="#334155"/>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrowCyan" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="12" markerHeight="12" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#22d3ee"/>
     </marker>
-    <marker id="arrow-teal" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
-      <path d="M2,2 L10,6 L2,10 Z" fill="#0f766e"/>
+    <marker id="arrowOrange" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="12" markerHeight="12" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#f59e0b"/>
     </marker>
     <style>
-      .title { font: 800 46px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; letter-spacing: 0; }
-      .subtitle { font: 500 22px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; letter-spacing: 0; }
-      .section { font: 800 24px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; letter-spacing: 0; }
-      .label { font: 700 20px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #102033; letter-spacing: 0; }
-      .small { font: 500 16px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #526173; letter-spacing: 0; }
-      .mini { font: 700 13px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8fafc; letter-spacing: 0; }
-      .badge { font: 800 15px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f766e; letter-spacing: 0; }
-      .white { fill: #fff; }
+      .h1 { font: 850 56px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8fafc; letter-spacing: 0; }
+      .sub { font: 500 22px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #a7b5c8; letter-spacing: 0; }
+      .kicker { font: 800 15px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #22d3ee; letter-spacing: 0; }
+      .stage { font: 850 26px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #e5f5ff; letter-spacing: 0; }
+      .label { font: 760 20px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8fafc; letter-spacing: 0; }
+      .small { font: 500 15px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #aebbd0; letter-spacing: 0; }
+      .tiny { font: 750 13px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #dbfaff; letter-spacing: 0; }
+      .mono { font: 750 15px "SFMono-Regular", Consolas, "Liberation Mono", monospace; fill: #67e8f9; letter-spacing: 0; }
     </style>
   </defs>
 
-  <rect width="1600" height="900" rx="0" fill="url(#bg)"/>
-  <circle cx="1370" cy="130" r="150" fill="#14b8a6" opacity="0.08"/>
-  <circle cx="185" cy="760" r="170" fill="#f59e0b" opacity="0.10"/>
+  <rect width="1600" height="900" fill="#020617"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+  <rect width="1600" height="900" fill="url(#dots)" opacity="0.65"/>
+  <circle cx="796" cy="462" r="390" fill="url(#haloA)"/>
+  <circle cx="1348" cy="188" r="260" fill="url(#haloB)"/>
+  <circle cx="176" cy="752" r="270" fill="url(#haloA)" opacity="0.62"/>
 
-  <text x="90" y="92" class="title">Self-Improvement Skill</text>
-  <text x="90" y="132" class="subtitle">Fast subagents scan real conversation history; the main agent turns evidence into durable rules.</text>
-
-  <g transform="translate(90 190)">
-    <rect x="0" y="0" width="360" height="560" rx="18" fill="#ffffff" stroke="#d8e2ea" filter="url(#shadow)"/>
-    <text x="34" y="54" class="section">1. History to cards</text>
-    <text x="34" y="91" class="small">Codex sessions, Claude projects,</text>
-    <text x="34" y="116" class="small">exports, logs, memory notes</text>
-
-    <g transform="translate(34 155)">
-      <rect x="0" y="0" width="292" height="74" rx="12" fill="#f8fafc" stroke="#d7e0ea"/>
-      <text x="22" y="31" class="label">Conversation history</text>
-      <text x="22" y="56" class="small">source-of-truth dialogue</text>
-    </g>
-    <g transform="translate(34 260)">
-      <rect x="0" y="0" width="292" height="74" rx="12" fill="#f8fafc" stroke="#d7e0ea"/>
-      <text x="22" y="31" class="label">Extractor script</text>
-      <text x="22" y="56" class="small">compact cards + manifest</text>
-    </g>
-    <g transform="translate(34 365)">
-      <rect x="0" y="0" width="292" height="106" rx="12" fill="#f8fafc" stroke="#d7e0ea"/>
-      <text x="22" y="31" class="label">Sharded cards</text>
-      <text x="22" y="58" class="small">card-001 ... card-500</text>
-      <text x="22" y="83" class="small">small enough for cheap scans</text>
-    </g>
-    <path d="M180 231 L180 251" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
-    <path d="M180 336 L180 356" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+  <g transform="translate(78 66)">
+    <rect x="0" y="0" width="182" height="32" rx="16" fill="#082f49" stroke="#155e75"/>
+    <text x="20" y="22" class="kicker">AGENT SELF-IMPROVEMENT</text>
+    <text x="0" y="88" class="h1">Fast history scans, stronger decisions.</text>
+    <text x="2" y="128" class="sub">GPT-5.3-Codex-Spark scouts fan out across conversation shards; the main agent only spends heavy attention on synthesis.</text>
   </g>
 
-  <path d="M470 470 C535 470, 555 470, 610 470" fill="none" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
-
-  <g transform="translate(610 170)">
-    <rect x="0" y="0" width="455" height="600" rx="22" fill="url(#dark)" filter="url(#shadow)"/>
-    <text x="34" y="60" class="section white">2. Parallel subagent scan</text>
-    <text x="34" y="96" class="small" fill="#dbeafe">The cost win: broad coverage on fast scout models.</text>
-
-    <rect x="34" y="126" width="160" height="34" rx="17" fill="#ccfbf1"/>
-    <text x="53" y="149" class="badge">FAST TIER</text>
-    <rect x="208" y="126" width="210" height="34" rx="17" fill="#fed7aa"/>
-    <text x="228" y="149" class="badge" fill="#9a3412">LOW REASONING</text>
-
-    <g transform="translate(34 196)">
-      <rect x="0" y="0" width="178" height="108" rx="14" fill="url(#spark)"/>
-      <text x="18" y="31" class="mini">code_scout</text>
-      <text x="18" y="56" class="mini">GPT-5.3-</text>
-      <text x="18" y="78" class="mini">Codex-Spark</text>
-      <text x="18" y="99" class="mini">shard A</text>
+  <g transform="translate(86 232)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="330" height="470" rx="26" fill="url(#panel)" stroke="#253247"/>
+    <text x="30" y="55" class="stage">1. Conversation history</text>
+    <text x="30" y="91" class="small">Codex sessions, Claude projects, exports, logs</text>
+    <g transform="translate(30 132)">
+      <rect x="0" y="0" width="270" height="68" rx="14" fill="url(#card)" stroke="#334155"/>
+      <circle cx="26" cy="34" r="10" fill="#22d3ee" filter="url(#glow)"/>
+      <text x="48" y="29" class="label">Raw transcripts</text>
+      <text x="48" y="52" class="small">real user corrections</text>
     </g>
-    <g transform="translate(244 196)">
-      <rect x="0" y="0" width="178" height="108" rx="14" fill="url(#spark)"/>
-      <text x="18" y="31" class="mini">code_scout</text>
-      <text x="18" y="56" class="mini">GPT-5.3-</text>
-      <text x="18" y="78" class="mini">Codex-Spark</text>
-      <text x="18" y="99" class="mini">shard B</text>
+    <g transform="translate(30 232)">
+      <rect x="0" y="0" width="270" height="68" rx="14" fill="url(#card)" stroke="#334155"/>
+      <circle cx="26" cy="34" r="10" fill="#38bdf8" filter="url(#glow)"/>
+      <text x="48" y="29" class="label">Extract cards</text>
+      <text x="48" y="52" class="small">compact evidence units</text>
     </g>
-    <g transform="translate(34 334)">
-      <rect x="0" y="0" width="178" height="108" rx="14" fill="url(#spark)"/>
-      <text x="18" y="31" class="mini">code_scout</text>
-      <text x="18" y="56" class="mini">GPT-5.3-</text>
-      <text x="18" y="78" class="mini">Codex-Spark</text>
-      <text x="18" y="99" class="mini">shard C</text>
+    <g transform="translate(30 332)">
+      <rect x="0" y="0" width="270" height="88" rx="14" fill="#08111f" stroke="#155e75"/>
+      <text x="22" y="32" class="mono">shard-01.md</text>
+      <text x="22" y="57" class="mono">shard-02.md</text>
+      <text x="162" y="57" class="mono">... shard-N</text>
     </g>
-    <g transform="translate(244 334)">
-      <rect x="0" y="0" width="178" height="108" rx="14" fill="#2563eb"/>
-      <text x="18" y="31" class="mini">docs_researcher</text>
-      <text x="18" y="56" class="mini">GPT-5.4-mini</text>
-      <text x="18" y="78" class="mini">docs + policy</text>
-      <text x="18" y="99" class="mini">sidecar scan</text>
-    </g>
-    <g transform="translate(66 490)">
-      <path d="M0 0 L332 0" stroke="#5eead4" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="0" cy="0" r="8" fill="#5eead4"/>
-      <circle cx="110" cy="0" r="8" fill="#5eead4"/>
-      <circle cx="222" cy="0" r="8" fill="#5eead4"/>
-      <circle cx="332" cy="0" r="8" fill="#5eead4"/>
-      <text x="38" y="42" class="small" fill="#dffcf8">many shards scanned at once</text>
-    </g>
+    <path d="M165 206 L165 224" stroke="#22d3ee" stroke-width="4" marker-end="url(#arrowCyan)" filter="url(#glow)"/>
+    <path d="M165 306 L165 324" stroke="#22d3ee" stroke-width="4" marker-end="url(#arrowCyan)" filter="url(#glow)"/>
   </g>
 
-  <path d="M1085 470 C1148 470, 1165 470, 1215 470" fill="none" stroke="#0f766e" stroke-width="5" marker-end="url(#arrow-teal)"/>
+  <path d="M426 468 C494 468 516 468 582 468" fill="none" stroke="#22d3ee" stroke-width="5" marker-end="url(#arrowCyan)" filter="url(#glow)"/>
 
-  <g transform="translate(1215 190)">
-    <rect x="0" y="0" width="295" height="560" rx="18" fill="#ffffff" stroke="#d8e2ea" filter="url(#shadow)"/>
-    <text x="30" y="54" class="section">3. Main agent synthesis</text>
-    <text x="30" y="91" class="small">judgment stays with the</text>
-    <text x="30" y="116" class="small">stronger coordinating agent</text>
+  <g transform="translate(582 202)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="498" height="532" rx="30" fill="#06111f" stroke="#164e63"/>
+    <text x="34" y="62" class="stage">2. Spark subagent fanout</text>
+    <text x="34" y="98" class="small">High-volume scan work goes to fast scout agents.</text>
+    <rect x="34" y="124" width="214" height="34" rx="17" fill="#052e2b" stroke="#0f766e"/>
+    <text x="55" y="147" class="tiny">FAST, CHEAP, READ-ONLY</text>
+    <rect x="264" y="124" width="196" height="34" rx="17" fill="#2b1d07" stroke="#b45309"/>
+    <text x="285" y="147" class="tiny" fill="#fed7aa">MAIN AGENT WAITS LESS</text>
 
-    <g transform="translate(30 158)">
-      <rect x="0" y="0" width="235" height="82" rx="12" fill="#fff7ed" stroke="#fed7aa"/>
-      <text x="20" y="34" class="label">Evidence ledger</text>
-      <text x="20" y="59" class="small">card ids + findings</text>
+    <g transform="translate(38 198)">
+      <rect x="0" y="0" width="194" height="116" rx="18" fill="url(#spark)" opacity="0.96"/>
+      <text x="20" y="35" class="label">code_scout A</text>
+      <text x="20" y="62" class="tiny">GPT-5.3-Codex-Spark</text>
+      <text x="20" y="91" class="tiny">scan shard 01-04</text>
     </g>
-    <g transform="translate(30 270)">
-      <rect x="0" y="0" width="235" height="82" rx="12" fill="#ecfdf5" stroke="#99f6e4"/>
-      <text x="20" y="34" class="label">Durable rules</text>
-      <text x="20" y="59" class="small">global vs project scope</text>
+    <g transform="translate(266 198)">
+      <rect x="0" y="0" width="194" height="116" rx="18" fill="url(#spark)" opacity="0.96"/>
+      <text x="20" y="35" class="label">code_scout B</text>
+      <text x="20" y="62" class="tiny">GPT-5.3-Codex-Spark</text>
+      <text x="20" y="91" class="tiny">scan shard 05-08</text>
     </g>
-    <g transform="translate(30 382)">
-      <rect x="0" y="0" width="235" height="104" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
-      <text x="20" y="34" class="label">Install targets</text>
-      <text x="20" y="61" class="small">AGENTS.md</text>
-      <text x="20" y="84" class="small">CLAUDE.md / skills</text>
+    <g transform="translate(38 346)">
+      <rect x="0" y="0" width="194" height="116" rx="18" fill="url(#spark)" opacity="0.96"/>
+      <text x="20" y="35" class="label">code_scout C</text>
+      <text x="20" y="62" class="tiny">GPT-5.3-Codex-Spark</text>
+      <text x="20" y="91" class="tiny">scan shard 09-12</text>
     </g>
-    <path d="M148 242 L148 262" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
-    <path d="M148 354 L148 374" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+    <g transform="translate(266 346)">
+      <rect x="0" y="0" width="194" height="116" rx="18" fill="#1d4ed8" opacity="0.96"/>
+      <text x="20" y="35" class="label">docs_researcher</text>
+      <text x="20" y="62" class="tiny">GPT-5.4-mini</text>
+      <text x="20" y="91" class="tiny">docs, APIs, policy</text>
+    </g>
+    <path d="M249 176 L249 482" stroke="#0e7490" stroke-width="2" opacity="0.55"/>
+    <path d="M86 332 L410 332" stroke="#0e7490" stroke-width="2" opacity="0.55"/>
+    <text x="145" y="506" class="small">parallel shard coverage without burning frontier-model context</text>
   </g>
 
-  <g transform="translate(384 796)">
-    <rect x="0" y="0" width="832" height="52" rx="26" fill="#111827"/>
-    <text x="34" y="34" class="small" fill="#f8fafc">Main claim: spend strong-model attention on synthesis, not on 50k-token grep over chat history.</text>
+  <path d="M1092 468 C1160 468 1180 468 1236 468" fill="none" stroke="#f59e0b" stroke-width="5" marker-end="url(#arrowOrange)" filter="url(#glow)"/>
+
+  <g transform="translate(1236 232)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="278" height="470" rx="26" fill="url(#panel)" stroke="#3b465a"/>
+    <text x="28" y="55" class="stage">3. Main synthesis</text>
+    <text x="28" y="91" class="small">strong model handles judgment, not bulk grep</text>
+    <g transform="translate(28 132)">
+      <rect x="0" y="0" width="222" height="76" rx="15" fill="#241707" stroke="#b45309"/>
+      <text x="20" y="32" class="label">Evidence ledger</text>
+      <text x="20" y="57" class="small">card ids, failures, fixes</text>
+    </g>
+    <g transform="translate(28 242)">
+      <rect x="0" y="0" width="222" height="76" rx="15" fill="#06251e" stroke="#0f766e"/>
+      <text x="20" y="32" class="label">Durable rules</text>
+      <text x="20" y="57" class="small">global vs project scope</text>
+    </g>
+    <g transform="translate(28 352)">
+      <rect x="0" y="0" width="222" height="78" rx="15" fill="#07172b" stroke="#2563eb"/>
+      <text x="20" y="31" class="label">Install targets</text>
+      <text x="20" y="56" class="small">AGENTS.md, CLAUDE.md, skills</text>
+    </g>
+    <path d="M139 212 L139 234" stroke="#f59e0b" stroke-width="4" marker-end="url(#arrowOrange)" filter="url(#glow)"/>
+    <path d="M139 322 L139 344" stroke="#f59e0b" stroke-width="4" marker-end="url(#arrowOrange)" filter="url(#glow)"/>
+  </g>
+
+  <g transform="translate(232 788)">
+    <rect x="0" y="0" width="1136" height="58" rx="29" fill="#07111f" stroke="#1e3a5f"/>
+    <text x="38" y="37" class="sub" fill="#d6edf7">Core advantage: cheap Spark scouts scan the history; the strong main agent integrates the signal.</text>
   </g>
 </svg>
 

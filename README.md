@@ -6,6 +6,30 @@ Self-Improvement is a portable agent skill for turning real conversation history
 
 The core move is broad evidence coverage: shard conversation history into compact cards, let fast `GPT-5.3-Codex-Spark` scout subagents scan many shards in parallel, then have the main agent synthesize durable rules, config updates, and follow-up tests.
 
+## Install in One Prompt
+
+Copy this prompt into Codex, Claude Code, or another local coding agent:
+
+```text
+Install the Self-Improvement Skill from GitHub.
+
+Repository: https://github.com/Chenwei-1999/agent-self-improvement.git
+
+Steps:
+1. Clone the repository into a temporary directory.
+2. From the cloned repository, run:
+   python3 scripts/install_skill.py --target all --force
+3. Verify the package:
+   python3 -m unittest discover -s tests -v
+4. Report the installed paths:
+   ~/.codex/skills/self-improvement
+   ~/.claude/skills/self-improvement
+   ~/.agents/skills/self-improvement
+
+Do not edit unrelated global config. If a target runtime does not use one of
+those skill directories, explain that compatibility note instead of guessing.
+```
+
 ## Why It Exists
 
 Most agent "self-improvement" drifts into vibes or hand-picked examples. This package keeps it grounded:
@@ -17,7 +41,7 @@ Most agent "self-improvement" drifts into vibes or hand-picked examples. This pa
 
 ## Install
 
-From this directory:
+If you already cloned the repository, run:
 
 ```bash
 python3 scripts/install_skill.py --target all --dry-run
@@ -81,6 +105,7 @@ A good audit does not say "be more careful." It says:
 
 ```text
 self-improvement/
+  INSTALL_PROMPT.md
   SKILL.md
   README.md
   agents/openai.yaml
