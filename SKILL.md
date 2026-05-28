@@ -42,6 +42,13 @@ Only install the candidates the user selected. If the user asks for a default,
 prefer the narrowest durable destination that will affect the next relevant
 decision.
 
+### Global or Systemic Change Warning
+
+Before changing global config, memory, reusable skills, or any rule that affects
+multiple projects or future sessions, warn the user about the scope and wait
+unless the user's prompt explicitly authorizes global or systemic changes. The
+warning must name the destination and expected blast radius.
+
 ## Adapter Rule
 
 Use roles, not one hardcoded model:
@@ -88,6 +95,7 @@ Do not rely on manual keyword search alone. The value of this skill is broad cov
 
 5. Install or report.
    - Ask the user which rule candidates to install and where before writing files.
+   - Warn and get permission before global or systemic installs unless already authorized.
    - For Codex, propose edits to `AGENTS.md`, a memory update, or a skill package.
    - For Claude, propose mirror edits to `CLAUDE.md`.
    - For Gemini CLI, propose edits to `GEMINI.md`, `.gemini/skills`, or extension packaging.

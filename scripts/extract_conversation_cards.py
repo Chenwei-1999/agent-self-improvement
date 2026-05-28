@@ -67,6 +67,8 @@ def extract_text_from_message(message):
 
 
 def card_from_codex(path, line_number, payload, max_chars):
+    if not isinstance(payload, dict):
+        return None
     item_type = payload.get("type") or payload.get("event") or ""
     role = payload.get("role")
     text = ""
@@ -102,6 +104,8 @@ def card_from_codex(path, line_number, payload, max_chars):
 
 
 def card_from_claude(path, line_number, payload, max_chars):
+    if not isinstance(payload, dict):
+        return None
     role = payload.get("role")
     item_type = payload.get("type") or payload.get("event") or ""
     text = ""
@@ -132,6 +136,8 @@ def card_from_claude(path, line_number, payload, max_chars):
 
 
 def card_from_generic_jsonl(path, line_number, payload, max_chars):
+    if not isinstance(payload, dict):
+        return None
     role = payload.get("role") or payload.get("speaker") or payload.get("author")
     item_type = payload.get("type") or payload.get("event") or "message"
     text = ""

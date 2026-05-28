@@ -10,10 +10,16 @@ Answer status questions from live evidence: files, logs, schedulers, configs, te
 
 Keep rules tied to their scope:
 
-- Global rules belong in user-level agent config.
-- Project rules belong in that project's AGENTS.md or CLAUDE.md.
+- Global rules belong in user-level agent config or memory, and need an
+  explicit scope warning unless the user already authorized global changes.
+- Project rules belong in that project's `AGENTS.md`, `CLAUDE.md`,
+  `GEMINI.md`, or equivalent agent instruction file.
 - Skill-specific behavior belongs in the skill.
 - One-off task details belong in the report, not durable config.
+
+When a write affects multiple projects, future sessions, shared memory, or a
+reusable skill, name the destination and expected blast radius before applying
+the change.
 
 ## Subagents for Coverage
 
@@ -61,4 +67,3 @@ Conversation audits may touch private paths, credentials, unpublished work, and 
 ## Resume Behavior
 
 When continuing after interruption, recover current state from files, logs, tests, and scheduler output. Do not restart from stale assumptions.
-

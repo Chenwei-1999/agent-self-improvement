@@ -53,6 +53,8 @@ Most agent "self-improvement" drifts into vibes or hand-picked examples. This pa
 - Before writing any rule, ask the user which candidates to install and whether
   they belong in a project instruction file, memory note, reusable skill, or
   report-only output.
+- Warn before global or systemic changes unless the user's prompt explicitly
+  allows global config, memory, reusable-skill, or cross-project writes.
 
 ## Agent Adapters
 
@@ -160,6 +162,8 @@ Expected outputs:
 - Evidence ledger: where each finding came from.
 - Rule candidates: global, project-specific, and tool-specific.
 - User installation decision: which rules to install, skip, or keep as report only.
+- Global/systemic warning: scope and destination when a selected install affects
+  multiple projects or future sessions.
 - Proposed installs: project instruction file, memory note, global config, or skill patch.
 - Verification plan: how to test the new behavior before calling it done.
 
@@ -178,6 +182,8 @@ The normal output is:
 - Rule candidates: scoped as global, project, tool, or one-off.
 - Install decision prompt: ask which candidates should be installed, skipped, or
   reported only.
+- Scope warning: call out global or systemic changes before any write that
+  affects future sessions or multiple projects.
 - Install proposal: exact edits for a project instruction file, `AGENTS.md`,
   `CLAUDE.md`, `GEMINI.md`, memory notes, or a skill patch.
 

@@ -77,6 +77,11 @@ available destinations:
 
 Install rules at the narrowest durable location selected by the user.
 
+Warn before global or systemic changes. If a proposed write affects global
+config, memory, reusable skills, or multiple projects, state the destination,
+blast radius, and reason. Continue only with explicit user permission or when
+the original user prompt already authorized that class of change.
+
 When editing shared config, preserve existing rules and add the smallest clear patch. For cross-tool parity, update Codex, Claude, Gemini, or generic-agent instructions when the rule should affect multiple tools.
 
 ## Step 5: Verify

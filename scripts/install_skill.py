@@ -49,6 +49,17 @@ def ignore_patterns(directory, names):
     return ignored
 
 
+def target_exists(target_path):
+    return target_path.exists() or target_path.is_symlink()
+
+
+def remove_existing_target(target_path):
+    if target_path.is_symlink() or target_path.is_file():
+        target_path.unlink()
+    else:
+        shutil.rmtree(str(target_path))
+
+
 def install_one(src, target_path, dry_run, force):
     target_path = target_path.expanduser()
     display = str(target_path).replace(os.path.expanduser("~"), "~", 1)
@@ -56,11 +67,11 @@ def install_one(src, target_path, dry_run, force):
         print("would install {0} -> {1}".format(src, display))
         return
 
-    if target_path.exists():
+    if target_exists(target_path):
         if not force:
             raise SystemExit("{0} already exists; rerun with --force".format(display))
         print("replacing existing {0}".format(display))
-        shutil.rmtree(str(target_path))
+        remove_existing_target(target_path)
 
     target_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(str(src), str(target_path), ignore=ignore_patterns)
