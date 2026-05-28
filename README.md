@@ -50,6 +50,9 @@ Most agent "self-improvement" drifts into vibes or hand-picked examples. This pa
 - Dispatches role-based scout subagents for fast, low-cost coverage across many shards.
 - Preserves the main agent as the owner of final judgment and config writes.
 - Produces scoped rules that can be installed into `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, memories, or a reusable skill.
+- Before writing any rule, ask the user which candidates to install and whether
+  they belong in a project instruction file, memory note, reusable skill, or
+  report-only output.
 
 ## Agent Adapters
 
@@ -156,7 +159,8 @@ Expected outputs:
 
 - Evidence ledger: where each finding came from.
 - Rule candidates: global, project-specific, and tool-specific.
-- Proposed installs: AGENTS.md, CLAUDE.md, memory note, or skill patch.
+- User installation decision: which rules to install, skip, or keep as report only.
+- Proposed installs: project instruction file, memory note, global config, or skill patch.
 - Verification plan: how to test the new behavior before calling it done.
 
 ## What You Get After Running It
@@ -172,8 +176,10 @@ The normal output is:
 - `manifest.json`: source roots, card counts, and shard paths.
 - Evidence ledger: card ids, source files, and observed correction signals.
 - Rule candidates: scoped as global, project, tool, or one-off.
-- Install proposal: exact edits for `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`,
-  memory notes, or a skill patch.
+- Install decision prompt: ask which candidates should be installed, skipped, or
+  reported only.
+- Install proposal: exact edits for a project instruction file, `AGENTS.md`,
+  `CLAUDE.md`, `GEMINI.md`, memory notes, or a skill patch.
 
 ## What Good Looks Like
 

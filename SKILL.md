@@ -23,6 +23,25 @@ Do not use for:
 
 Before writing any durable rule, collect source evidence and identify its scope: global, project, tool, or one-off.
 
+## Installation Decision Gate
+
+Ask the user which rule candidates to install before writing any durable rule.
+Present the evidence-backed candidates with recommended scopes, then offer
+clear destinations:
+
+- Report only: summarize candidates and do not install.
+- Project instruction file: write project-scoped rules to `AGENTS.md`,
+  `CLAUDE.md`, `GEMINI.md`, or the equivalent project file.
+- Memory note: preserve durable user preferences or cross-project defaults.
+- Reusable skill: patch this skill or another skill when the workflow itself
+  should change.
+- Custom destination: use a user-named global config, project file, or runtime
+  skill directory.
+
+Only install the candidates the user selected. If the user asks for a default,
+prefer the narrowest durable destination that will affect the next relevant
+decision.
+
 ## Adapter Rule
 
 Use roles, not one hardcoded model:
@@ -68,6 +87,7 @@ Do not rely on manual keyword search alone. The value of this skill is broad cov
    - Drop one-off preferences unless the user explicitly wants them preserved.
 
 5. Install or report.
+   - Ask the user which rule candidates to install and where before writing files.
    - For Codex, propose edits to `AGENTS.md`, a memory update, or a skill package.
    - For Claude, propose mirror edits to `CLAUDE.md`.
    - For Gemini CLI, propose edits to `GEMINI.md`, `.gemini/skills`, or extension packaging.

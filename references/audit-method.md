@@ -64,12 +64,18 @@ Discard:
 
 ## Step 4: Install Carefully
 
-Install rules at the narrowest durable location:
+Ask the user which proposed rules to install before writing any durable file.
+Show the proposed rules, evidence references, recommended scope, and the
+available destinations:
 
-- Project behavior: project `AGENTS.md` or `CLAUDE.md`.
+- report only: no install.
+- Project behavior: project instruction file such as `AGENTS.md`, `CLAUDE.md`,
+  or `GEMINI.md`.
 - Global agent behavior: user-level AGENTS/CLAUDE configuration.
-- Reusable workflow: a skill package.
+- Reusable workflow: reusable skill package.
 - Historical preference: memory note.
+
+Install rules at the narrowest durable location selected by the user.
 
 When editing shared config, preserve existing rules and add the smallest clear patch. For cross-tool parity, update Codex, Claude, Gemini, or generic-agent instructions when the rule should affect multiple tools.
 
