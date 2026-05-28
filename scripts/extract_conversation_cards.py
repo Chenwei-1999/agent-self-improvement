@@ -135,7 +135,17 @@ def card_from_generic_jsonl(path, line_number, payload, max_chars):
     role = payload.get("role") or payload.get("speaker") or payload.get("author")
     item_type = payload.get("type") or payload.get("event") or "message"
     text = ""
-    for key in ("message", "content", "text", "prompt", "response", "output"):
+    for key in (
+        "message",
+        "messages",
+        "content",
+        "text",
+        "prompt",
+        "response",
+        "output",
+        "conversation",
+        "transcript",
+    ):
         if key in payload:
             text = extract_text_from_message(payload.get(key))
             if text:
@@ -193,23 +203,34 @@ def collect_cards(root, source, max_chars):
     return cards
 
 
-def collect_generic_cards(root, max_chars):
+def collect_generic_cards(root, max_chars, max_files=None, max_bytes=None):
     if not root:
         return []
     root = Path(root).expanduser()
     if not root.exists():
         return []
     cards = []
+    files_seen = 0
     for path in sorted(root.rglob("*")):
         if not path.is_file():
             continue
+        if max_files is not None and files_seen >= max_files:
+            break
+        if max_bytes is not None:
+            try:
+                if path.stat().st_size > max_bytes:
+                    continue
+            except Exception:
+                continue
         suffix = path.suffix.lower()
         if suffix == ".jsonl":
+            files_seen += 1
             for line_number, payload in read_jsonl(path):
                 card = card_from_generic_jsonl(path, line_number, payload, max_chars)
                 if card:
                     cards.append(card)
         elif suffix in (".md", ".txt"):
+            files_seen += 1
             cards.extend(cards_from_text_file(path, max_chars))
     return cards
 
@@ -249,6 +270,8 @@ def main():
     parser.add_argument("--claude-shards", type=int, default=10, help="Number of Claude shard files.")
     parser.add_argument("--generic-shards", type=int, default=8, help="Number of generic transcript shard files.")
     parser.add_argument("--max-chars", type=int, default=700, help="Maximum text length per card.")
+    parser.add_argument("--max-files", type=int, default=None, help="Maximum number of generic export files to scan.")
+    parser.add_argument("--max-bytes", type=int, default=None, help="Skip generic export files larger than this many bytes.")
     args = parser.parse_args()
 
     out_dir = Path(args.out).expanduser()
@@ -256,7 +279,7 @@ def main():
 
     codex_cards = collect_cards(args.codex_root, "codex", args.max_chars)
     claude_cards = collect_cards(args.claude_root, "claude", args.max_chars)
-    generic_cards = collect_generic_cards(args.generic_root, args.max_chars)
+    generic_cards = collect_generic_cards(args.generic_root, args.max_chars, args.max_files, args.max_bytes)
 
     shard_paths = []
     shard_paths.extend(write_shards(codex_cards, out_dir, "codex", args.codex_shards))

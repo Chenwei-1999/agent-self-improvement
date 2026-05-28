@@ -11,12 +11,12 @@
 <p align="center">
   <a href="https://developers.openai.com/codex/skills"><img src="https://img.shields.io/badge/Codex-Skill-111827?style=for-the-badge&logo=openai&logoColor=white" alt="Codex Skill"></a>
   <img src="https://img.shields.io/badge/Claude-Code-6b46c1?style=for-the-badge" alt="Claude Code compatible">
+  <img src="https://img.shields.io/badge/Gemini-CLI-4285f4?style=for-the-badge" alt="Gemini CLI compatible">
   <img src="https://img.shields.io/badge/Scouts-Role--Based-0f766e?style=for-the-badge" alt="Role-based scout agents">
   <img src="https://img.shields.io/badge/Install-Copy--Paste--Prompt-f59e0b?style=for-the-badge" alt="Copy-paste install">
-  <img src="https://img.shields.io/badge/Tests-Passing-2563eb?style=for-the-badge" alt="Tests passing">
 </p>
 
-Self-Improvement is a portable agent skill for turning real conversation history into better operating rules. It is designed for Codex, Claude Code, and generic agents that support filesystem-installed skills.
+Self-Improvement is a portable agent skill for turning real conversation history into better operating rules. It is designed for SKILL.md-compatible agents, including Gemini CLI, Codex, Claude Code, and generic agents that support filesystem-installed skills.
 
 The core advantage is coverage: shard conversation history into compact cards, let fast read-only scout subagents scan many shards in parallel, then spend the main agent's stronger reasoning on synthesis, rules, and safe installation.
 
@@ -28,7 +28,7 @@ Give this GitHub link to your coding agent:
 Install this skill: https://github.com/Chenwei-1999/agent-self-improvement
 ```
 
-That's the intended install path. The repo includes the installer, tests, and compatibility notes, so a local coding agent can clone it, run the installer, verify it, and report where it landed.
+That's the intended install path. The repo includes the skill, installer, and compatibility notes, so a local coding agent can clone it, run the installer, verify target discovery, and report where it landed.
 
 If your agent supports `skill-installer`, the equivalent single command is:
 
@@ -36,25 +36,31 @@ If your agent supports `skill-installer`, the equivalent single command is:
 $skill-installer install https://github.com/Chenwei-1999/agent-self-improvement
 ```
 
+For Gemini CLI, use Gemini's own skill installer instead of Codex:
+
+```bash
+gemini skills install https://github.com/Chenwei-1999/agent-self-improvement
+```
+
 ## Why It Exists
 
 Most agent "self-improvement" drifts into vibes or hand-picked examples. This package keeps it grounded:
 
-- Uses actual Codex and Claude conversation history.
+- Uses actual agent conversation history, including Codex sessions, Claude projects, Gemini exports, and generic transcript folders.
 - Dispatches role-based scout subagents for fast, low-cost coverage across many shards.
 - Preserves the main agent as the owner of final judgment and config writes.
-- Produces scoped rules that can be installed into `AGENTS.md`, `CLAUDE.md`, memories, or a reusable skill.
+- Produces scoped rules that can be installed into `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, memories, or a reusable skill.
 
 ## Agent Adapters
 
 The skill does not require one specific model. It uses roles and maps them to whatever your coding agent supports.
 
-| Role | Job | Codex adapter | Claude Code adapter | Generic coding agents |
-|------|-----|---------------|---------------------|-----------------------|
-| `history-scout` | Scan conversation-card shards | `code_scout` / `GPT-5.3-Codex-Spark` | `code-scout` or a fast Sonnet-class subagent | fastest read-only coding worker |
-| `docs-scout` | Check docs, policy, install conventions | `docs_researcher` / mini model | Haiku-class docs researcher | cheap docs/search worker |
-| `main-synthesizer` | Merge evidence and decide rules | current main agent | Opus/Sonnet-class main agent | strongest available coding agent |
-| `verifier` | Run tests and install dry-runs | local shell or test agent | test-runner subagent or local shell | local shell / CI worker |
+| Role | Job | Codex adapter | Claude Code adapter | Gemini CLI adapter | Generic coding agents |
+|------|-----|---------------|---------------------|--------------------|-----------------------|
+| `history-scout` | Scan conversation-card shards | `code_scout` / `GPT-5.3-Codex-Spark` | `code-scout` or a fast Sonnet-class subagent | Gemini skill plus separate read-only session or sequential shard pass | fastest read-only coding worker |
+| `docs-scout` | Check docs, policy, install conventions | `docs_researcher` / mini model | Haiku-class docs researcher | Gemini docs/search session | cheap docs/search worker |
+| `main-synthesizer` | Merge evidence and decide rules | current main agent | Opus/Sonnet-class main agent | primary Gemini CLI session | strongest available coding agent |
+| `verifier` | Run install dry-runs, skill discovery, and smoke checks | local shell or CI | local shell or CI | `gemini skills list`, local shell, or CI | local shell / CI worker |
 
 If a runtime has no subagents, run the same shard prompts sequentially. The quality goal is evidence coverage; the optimization is parallelism.
 
@@ -62,7 +68,7 @@ If a runtime has no subagents, run the same shard prompts sequentially. The qual
 
 ```text
 conversation history
-  Codex sessions, Claude projects, exported transcripts
+  Codex sessions, Claude projects, Gemini exports, generic transcripts
         |
         v
 compact cards + shards
@@ -76,7 +82,7 @@ history-scout subagents
         |
         v
 main agent synthesis
-  evidence ledger -> durable rules -> AGENTS.md / CLAUDE.md / skills
+  evidence ledger -> durable rules -> AGENTS.md / CLAUDE.md / GEMINI.md / skills
 ```
 
 The scouts do the wide scan. The main agent does the judgment.
@@ -98,6 +104,7 @@ Install only one target:
 ```bash
 python3 scripts/install_skill.py --target codex --force
 python3 scripts/install_skill.py --target claude --force
+python3 scripts/install_skill.py --target gemini --force
 python3 scripts/install_skill.py --target generic --force
 python3 scripts/install_skill.py --target custom --custom-dir ~/.my-agent/skills/self-improvement --force
 ```
@@ -106,6 +113,7 @@ Targets:
 
 - Codex: `~/.codex/skills/self-improvement`
 - Claude: `~/.claude/skills/self-improvement`
+- Gemini CLI: `~/.gemini/skills/self-improvement`
 - Generic local agents: `~/.agents/skills/self-improvement`
 - Custom runtimes: any directory passed with `--custom-dir`
 
@@ -125,10 +133,14 @@ python3 scripts/extract_conversation_cards.py --out conversation-audit/cards
 
 By default this reads `~/.codex/sessions` and `~/.claude/projects`. Override them with `--codex-root` and `--claude-root` when using exported history or a different machine layout.
 
-For other coding agents, export transcripts to a folder and pass it as `--generic-root`:
+For Gemini CLI and other coding agents, export transcripts to a folder and pass it as `--generic-root`:
 
 ```bash
-python3 scripts/extract_conversation_cards.py --generic-root /path/to/transcripts --out conversation-audit/cards
+python3 scripts/extract_conversation_cards.py \
+  --generic-root /path/to/transcripts \
+  --max-files 200 \
+  --max-bytes 2000000 \
+  --out conversation-audit/cards
 ```
 
 Extraction writes Markdown shard files plus `manifest.json`, which records roots, counts, and shard paths for later verification.
@@ -147,6 +159,22 @@ Expected outputs:
 - Proposed installs: AGENTS.md, CLAUDE.md, memory note, or skill patch.
 - Verification plan: how to test the new behavior before calling it done.
 
+## What You Get After Running It
+
+Installing the skill only makes the workflow discoverable. The actual
+self-improvement effect happens after you extract cards, audit them, and install
+the resulting rules.
+
+The normal output is:
+
+- `conversation-audit/cards/...`: compact shard files for scout agents or
+  sequential review.
+- `manifest.json`: source roots, card counts, and shard paths.
+- Evidence ledger: card ids, source files, and observed correction signals.
+- Rule candidates: scoped as global, project, tool, or one-off.
+- Install proposal: exact edits for `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`,
+  memory notes, or a skill patch.
+
 ## What Good Looks Like
 
 A good audit does not say "be more careful." It says:
@@ -154,7 +182,7 @@ A good audit does not say "be more careful." It says:
 - When a user asks for repo status, inspect live files and scheduler state before summarizing.
 - When a long-running job is active, report concrete state, elapsed time, and next gate.
 - When history is large, use subagents to scan shards and keep the main agent on synthesis.
-- When rules should persist across tools, mirror them in Codex and Claude configuration instead of letting the tools diverge.
+- When rules should persist across tools, mirror them in the right instruction files instead of letting Codex, Claude, Gemini, and generic agents diverge.
 
 ## Package Layout
 
@@ -171,7 +199,6 @@ self-improvement/
   references/operating-rules.md
   scripts/extract_conversation_cards.py
   scripts/install_skill.py
-  tests/
 ```
 
 ## Design Notes

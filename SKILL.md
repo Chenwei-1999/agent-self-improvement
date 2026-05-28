@@ -1,11 +1,11 @@
 ---
 name: self-improvement
-description: Use when the user asks an agent to learn from Codex, Claude, chat, transcript, or conversation history; extract recurring corrections; improve operating rules; or update agent instructions.
+description: Use when the user asks an agent to learn from agent conversation history, chat transcripts, rollout logs, or exported sessions; extract recurring corrections; improve operating rules; or update agent instructions.
 ---
 
 # Self-Improvement Skill
 
-Use this skill when the user asks to audit past chats, extract durable lessons, improve agent behavior, update AGENTS.md or CLAUDE.md, or compare recurring failures across Codex, Claude, and other agent transcripts.
+Use this skill when the user asks to audit past chats, extract durable lessons, improve agent behavior, update AGENTS.md, CLAUDE.md, GEMINI.md, or another agent instruction file, or compare recurring failures across agent transcripts.
 
 ## Activation Contract
 
@@ -30,9 +30,9 @@ Use roles, not one hardcoded model:
 - `history-scout`: fastest read-only coding worker for shard scans.
 - `docs-scout`: cheap docs/search worker for documentation and policy checks.
 - `main-synthesizer`: strongest available main agent for evidence integration and durable rule decisions.
-- `verifier`: local shell, test runner, or CI worker for install and package checks.
+- `verifier`: local shell or CI worker for install dry-runs, runtime discovery, and package smoke checks.
 
-For Codex this may map `history-scout` to `code_scout` / `GPT-5.3-Codex-Spark`. For Claude Code this may map to a `code-scout` or fast Sonnet-class worker, with Haiku-class agents for docs. For other coding agents, use the closest read-only workers or run shard prompts sequentially. See `references/agent-adapters.md`.
+For Codex this may map `history-scout` to `code_scout` / `GPT-5.3-Codex-Spark`. For Claude Code this may map to a `code-scout` or fast Sonnet-class worker, with Haiku-class agents for docs. For Gemini CLI, use Gemini skills plus separate read-only sessions, custom commands, or sequential shard passes when subagents are unavailable. For other coding agents, use the closest read-only workers or run shard prompts sequentially. See `references/agent-adapters.md`.
 
 The central pattern is:
 
@@ -46,12 +46,12 @@ Do not rely on manual keyword search alone. The value of this skill is broad cov
 ## Workflow
 
 1. Define scope.
-   - Sources: Codex logs, Claude logs, exported transcripts, project notes, or a user-provided folder.
+   - Sources: local agent logs, exported transcripts, project notes, Codex sessions, Claude projects, Gemini exports, or a user-provided folder.
    - Time range: all history, recent history, or a specific project.
    - Output: report only, proposed rules, memory note, AGENTS.md patch, CLAUDE.md patch, or installer-ready skill update.
 
 2. Extract cards.
-   - Prefer `scripts/extract_conversation_cards.py` for Codex and Claude local histories.
+   - Prefer `scripts/extract_conversation_cards.py` for local histories and exported transcripts. It has native Codex and Claude readers plus a generic reader for Gemini, Cursor, Continue, Aider, OpenHands, and other transcript exports.
    - Keep cards compact: user request, assistant response summary, tool evidence, corrections, failures, and follow-up outcome.
    - Avoid exposing secrets. Redact API keys, tokens, credentials, and private paths if the output may leave the machine.
 
@@ -70,6 +70,7 @@ Do not rely on manual keyword search alone. The value of this skill is broad cov
 5. Install or report.
    - For Codex, propose edits to `AGENTS.md`, a memory update, or a skill package.
    - For Claude, propose mirror edits to `CLAUDE.md`.
+   - For Gemini CLI, propose edits to `GEMINI.md`, `.gemini/skills`, or extension packaging.
    - For portable use, install this skill with `scripts/install_skill.py`.
    - Never silently rewrite global config. Show the rule set and make the write explicit unless the user already asked for installation.
 
@@ -85,6 +86,12 @@ For agents with a skill installer:
 
 ```text
 $skill-installer install https://github.com/Chenwei-1999/agent-self-improvement
+```
+
+For Gemini CLI:
+
+```bash
+gemini skills install https://github.com/Chenwei-1999/agent-self-improvement
 ```
 
 Create conversation-card shards:
@@ -104,6 +111,7 @@ Install for one agent family:
 ```bash
 python3 scripts/install_skill.py --target codex --force
 python3 scripts/install_skill.py --target claude --force
+python3 scripts/install_skill.py --target gemini --force
 python3 scripts/install_skill.py --target generic --force
 python3 scripts/install_skill.py --target custom --custom-dir ~/.my-agent/skills/self-improvement --force
 ```
@@ -113,5 +121,5 @@ python3 scripts/install_skill.py --target custom --custom-dir ~/.my-agent/skills
 ## References
 
 - `references/audit-method.md`: detailed audit method and subagent prompt templates.
-- `references/agent-adapters.md`: role mappings for Codex, Claude Code, and generic coding agents.
+- `references/agent-adapters.md`: role mappings for Codex, Claude Code, Gemini CLI, and generic coding agents.
 - `references/operating-rules.md`: rule taxonomy and examples from real Codex/Claude self-improvement audits.

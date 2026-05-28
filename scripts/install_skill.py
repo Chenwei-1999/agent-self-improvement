@@ -13,10 +13,12 @@ SKILL_NAME = "self-improvement"
 TARGETS = {
     "codex": Path("~/.codex/skills") / SKILL_NAME,
     "claude": Path("~/.claude/skills") / SKILL_NAME,
+    "gemini": Path("~/.gemini/skills") / SKILL_NAME,
     "agents": Path("~/.agents/skills") / SKILL_NAME,
 }
 ALIASES = {
     "agent": "agents",
+    "gemini-cli": "gemini",
     "generic": "agents",
 }
 EXCLUDE_DIRS = {".git", "__pycache__", ".pytest_cache", "tests", "conversation-audit"}
@@ -69,8 +71,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--target",
-        choices=["all", "codex", "claude", "agents", "agent", "generic", "custom"],
+        choices=["all", "codex", "claude", "gemini", "gemini-cli", "agents", "agent", "generic", "custom"],
         default="all",
+        help="Runtime target. 'generic' and 'agent' install to ~/.agents/skills; 'gemini-cli' is an alias for 'gemini'.",
     )
     parser.add_argument("--custom-dir", help="Install into an explicit skill directory for another runtime.")
     parser.add_argument("--dry-run", action="store_true", help="Print target directories without copying.")

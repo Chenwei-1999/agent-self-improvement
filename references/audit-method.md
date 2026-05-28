@@ -71,13 +71,13 @@ Install rules at the narrowest durable location:
 - Reusable workflow: a skill package.
 - Historical preference: memory note.
 
-When editing shared config, preserve existing rules and add the smallest clear patch. For cross-tool parity, update both Codex and Claude instructions when the rule should affect both tools.
+When editing shared config, preserve existing rules and add the smallest clear patch. For cross-tool parity, update Codex, Claude, Gemini, or generic-agent instructions when the rule should affect multiple tools.
 
 ## Step 5: Verify
 
 Verification can be lightweight:
 
-- Re-run package tests.
+- Re-run installer dry-runs or runtime discovery checks.
 - Ask a fresh subagent to use the skill on a small fixture.
 - Check that generated rules include evidence references.
 - Confirm installers target the expected directories.
