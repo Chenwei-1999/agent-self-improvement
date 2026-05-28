@@ -50,6 +50,10 @@ def ignore_patterns(directory, names):
     for name in names:
         if name in EXCLUDE_DIRS:
             ignored.add(name)
+            continue
+        if name.startswith("."):
+            ignored.add(name)
+            continue
         if name.endswith(".pyc"):
             ignored.add(name)
     return ignored
